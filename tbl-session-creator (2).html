@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TBL Session Creator | MedMasters Launch Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Canonical school/ed palette */
+  --navy:        #0A1322;
+  --navy-mid:    #1F2D44;
+  --ink-soft:    #14202F;
+  --ink-muted:   #3D4860;
+  --slate:       #334155;
+
+  --terra:       #C25A3E;
+  --terra-text:  #7A2F18;
+  --terra-bright:#E59575;
+
+  --gold:        #D4A24C;
+  --gold-text:   #6E5018;
+  --gold-bright: #E5B45C;
+
+  --teal-text:   #2C5F66;
+
+  --rule:        #B8BEC8;
+  --rule-soft:   #DCE0E6;
+  --rule-faint:  #E8EBEF;
+
+  /* Surfaces */
+  --bg:          #ffffff;
+  --bg-soft:     #fafaf9;
+  --surface:     #ffffff;
+
+  /* Tints */
+  --terra-pale:  rgba(194,90,62,.07);
+  --teal-pale:   rgba(44,95,102,.08);
+  --gold-pale:   rgba(212,162,76,.10);
+  --navy-pale:   rgba(10,19,34,.04);
+
+  /* Borders & shadows */
+  --border:      var(--rule-faint);
+  --border-mid:  var(--rule-soft);
+  --border-strong:var(--rule);
+
+  --shadow-card: 0 1px 3px rgba(10,19,34,.08), 0 1px 2px rgba(10,19,34,.05);
+  --shadow-lift: 0 6px 16px rgba(10,19,34,.10), 0 3px 6px rgba(10,19,34,.06);
+
+  --radius:      0;
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink-soft);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Skip link & focus */
+.skip-link {position:absolute;left:-9999px;top:8px;background:var(--navy);color:#fff;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;z-index:1000;}
+.skip-link:focus {left:8px;}
+button:focus-visible, a:focus-visible, select:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: 2px;
+}
+
+/* Header */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 42px 64px 34px;
+  background: var(--bg-soft);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.header-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.header-eyebrow-line { width: 28px; height: 1px; background: var(--terra-text); }
+.header-eyebrow-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--terra-text);
+}
+header h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 4.6vw, 60px);
+  letter-spacing: -0.015em;
+  color: var(--navy);
+  line-height: 1.0;
+}
+header h1 em {
+  font-style: normal;
+  color: var(--terra-text);
+}
+.header-sub {
+  font-size: 14.5px;
+  color: var(--ink-muted);
+  margin-top: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  max-width: 540px;
+}
+.header-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  background: var(--gold-pale);
+  border: 1px solid rgba(212,162,76,.30);
+  padding: 6px 14px;
+  white-space: nowrap;
+  align-self: flex-end;
+  margin-bottom: 4px;
+}
+
+/* Layout */
+.main-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 40px 64px;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.progress-bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--rule-faint);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.progress-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--terra-text);
+  white-space: nowrap;
+  min-width: 56px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Card */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  border-left: 3px solid var(--navy);
+  box-shadow: var(--shadow-card);
+  padding: 36px 40px 40px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 32px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.card-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 38px;
+  color: var(--terra);
+  letter-spacing: 0;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.card-header-text h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+.card-header-text p {
+  font-size: 13.5px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* Form */
+.form-group { margin-bottom: 22px; }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.form-row .form-group { margin-bottom: 0; }
+label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+label .opt {
+  color: var(--ink-muted);
+  font-weight: 400;
+  font-size: 12px;
+}
+label .req {
+  color: var(--terra-text);
+  font-weight: 700;
+  margin-left: 2px;
+}
+textarea, select, input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  color: var(--ink-soft);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 11px 13px;
+  border-radius: 0;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  appearance: none;
+}
+textarea:focus, select:focus, input:focus {
+  outline: none;
+  border-color: var(--navy);
+  box-shadow: 0 0 0 2px rgba(10,19,34,0.10);
+}
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.65;
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%233D4860' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+select option { background: var(--surface); }
+::placeholder { color: var(--ink-muted); opacity: 0.6; }
+
+/* Field error state */
+.field-error textarea,
+.field-error select,
+.field-error input {
+  border-color: var(--terra);
+  background: var(--terra-pale);
+}
+.field-error-msg {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--terra-text);
+  margin-top: 6px;
+  display: none;
+}
+.field-error .field-error-msg { display: block; }
+
+/* Section divider */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 30px 0 22px;
+}
+.section-divider:first-of-type { margin-top: 0; }
+.section-divider-line { flex: 1; height: 1px; background: var(--border); }
+.section-divider-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--terra-text);
+  white-space: nowrap;
+}
+
+/* Pedagogical context box */
+.info-box {
+  background: var(--navy-pale);
+  border: 1px solid rgba(10,19,34,.10);
+  border-left: 3px solid var(--navy);
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+.info-box strong { color: var(--navy); font-weight: 700; }
+.info-box.terra { border-left-color: var(--terra); background: var(--terra-pale); border-color: rgba(194,90,62,.16); }
+.info-box.terra strong { color: var(--terra-text); }
+
+/* Checkbox row */
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 15px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-mid);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.check-row:hover { background: #fff; border-color: var(--border-strong); }
+.check-row input[type="checkbox"] {
+  margin: 3px 0 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  accent-color: var(--navy);
+  cursor: pointer;
+}
+.check-row span {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  font-weight: 500;
+}
+.check-row strong { color: var(--navy); font-weight: 700; }
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.btn-generate {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #fff;
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  padding: 14px 36px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.08s;
+}
+.btn-generate:hover { background: var(--navy-mid); border-color: var(--navy-mid); box-shadow: var(--shadow-lift); }
+.btn-generate:active { transform: translateY(1px); }
+.btn-generate .btn-mark {
+  display: inline-block; width: 6px; height: 6px; background: var(--gold-bright);
+}
+
+.btn-reset {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--navy);
+  background: transparent;
+  border: 1px solid var(--navy);
+  padding: 13px 24px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-reset:hover { background: var(--navy); color: #fff; }
+
+/* Output */
+.output-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-mid);
+  border-left: 3px solid var(--terra);
+  box-shadow: var(--shadow-card);
+  margin-top: 30px;
+  padding: 28px 32px;
+}
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.output-header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.output-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--terra-text);
+}
+.output-seq-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  padding: 4px 10px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.output-btn-row { display: flex; gap: 8px; }
+.btn-copy, .btn-regen {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--navy);
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn-copy:hover, .btn-regen:hover {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+.output-text {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  color: var(--ink-soft);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.7;
+  padding: 18px 20px;
+  white-space: pre-wrap;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+/* AI section */
+.ai-section {
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
+}
+.ai-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  text-align: center;
+  margin-bottom: 16px;
+}
+.ai-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #fff;
+  text-decoration: none;
+  background: var(--navy);
+  border: 1px solid var(--navy);
+  padding: 11px 22px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.08s;
+}
+.ai-btn:hover { background: var(--navy-mid); border-color: var(--navy-mid); box-shadow: var(--shadow-lift); }
+.ai-btn:active { transform: translateY(1px); }
+.ai-btn .ai-btn-mark {
+  display: inline-block; width: 6px; height: 6px; background: var(--gold-bright);
+}
+.ai-hint {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  margin-top: 14px;
+  font-weight: 400;
+}
+.ai-hint .kbd {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 11.5px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-mid);
+  border-bottom-width: 2px;
+  padding: 1px 6px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+/* Toast */
+.copy-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--navy);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 12px 22px;
+  border-left: 3px solid var(--terra);
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+  box-shadow: var(--shadow-lift);
+}
+.copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 22px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-soft);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.footer-brand {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0;
+  color: var(--navy);
+}
+.footer-sub {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--terra-text);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.footer-right {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill, .btn-generate, .ai-btn, .copy-toast { transition: none; }
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  header { padding: 28px 24px 24px; flex-direction: column; align-items: flex-start; }
+  .header-badge { align-self: flex-start; margin-bottom: 0; }
+  .main-wrap { padding: 28px 20px 60px; }
+  .form-card { padding: 24px 22px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .form-row .form-group { margin-bottom: 22px; }
+  footer { padding: 22px 24px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .output-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+
+<header>
+  <div class="header-left">
+    <div class="header-eyebrow">
+      <div class="header-eyebrow-line"></div>
+      <div class="header-eyebrow-text">MedMasters Launch Studio</div>
+    </div>
+    <h1>TBL Session <em>Creator</em></h1>
+    <p class="header-sub">Generate comprehensive prompts for Team-Based Learning sessions.</p>
+  </div>
+  <div class="header-badge">Faculty Tool &nbsp;&middot;&nbsp; Free</div>
+</header>
+
+<main class="main-wrap" id="mainContent">
+
+  <!-- Progress -->
+  <div class="progress-bar-wrap" role="status" aria-live="polite">
+    <div class="progress-label">Fields complete</div>
+    <div class="progress-bar-track" aria-hidden="true">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-count" id="progress-count">0 / 13</div>
+  </div>
+
+  <section class="form-card" aria-labelledby="cardHead">
+
+    <div class="card-header">
+      <div class="card-num" aria-hidden="true">01</div>
+      <div class="card-header-text">
+        <h2 id="cardHead">Configure your session</h2>
+        <p>Complete the fields below to generate a ready-to-use TBL prompt.</p>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">Content &amp; Context</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="form-group" id="fg-learning-objectives">
+      <label for="learning-objectives">Learning objectives <span class="opt">(optional if source materials provided)</span></label>
+      <textarea id="learning-objectives" placeholder="Paste your learning objectives here. Leave blank if your source materials below already define them, the AI will infer them..."></textarea>
+    </div>
+
+    <div class="form-group" id="fg-prework-materials">
+      <label for="prework-materials">Prework materials description <span class="opt">(optional if source materials provided)</span></label>
+      <textarea id="prework-materials" placeholder="Describe uploaded content (PDFs, videos, images, links). Leave blank if you're providing source materials below..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="high-yield-topics">High yield topics <span class="opt">(optional)</span></label>
+      <textarea id="high-yield-topics" style="min-height:72px;" placeholder="List specific topics or high-yield content to emphasize..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-course-level">
+        <label for="course-level">Course level <span class="req" aria-hidden="true">*</span></label>
+        <select id="course-level" aria-required="true">
+          <option value="">Select level...</option>
+          <option>Undergraduate</option>
+          <option>Graduate</option>
+          <option>Professional</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a course level.</div>
+      </div>
+      <div class="form-group" id="fg-student-programs">
+        <label for="student-programs">Student programs <span class="req" aria-hidden="true">*</span></label>
+        <select id="student-programs" aria-required="true">
+          <option value="">Select program...</option>
+          <option>Pre-med</option>
+          <option>Nursing</option>
+          <option>Physical Therapy</option>
+          <option>Occupational Therapy</option>
+          <option>Pharmacy</option>
+          <option>Dental</option>
+          <option>Veterinary</option>
+          <option>Undergraduate Anatomy</option>
+          <option>Undergraduate Physiology</option>
+          <option>Undergraduate Pharmacology</option>
+          <option>Mixed Programs</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a student program.</div>
+      </div>
+    </div>
+
+    <!-- Source Materials -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">Source Materials (optional)</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="info-box">
+      <strong>Ground the AI in your specific course content.</strong> Optional but powerful. Use one or both methods below to give the AI specific source material to draw from. Questions, rationales, scenarios, and application cases will be built on your sources instead of generic textbook content. Use this when you want questions that match how YOU teach, with terminology that aligns with your lecture and distractors that target the specific misconceptions your prework primes for.
+    </div>
+
+    <div class="form-group">
+      <label class="check-row" for="source-upload-flag">
+        <input type="checkbox" id="source-upload-flag" />
+        <span><strong>I will upload source documents directly to the AI.</strong> Adds an instruction telling the AI that PDFs, slides, articles, syllabus excerpts, or other documents have been attached to the chat and should be used as the primary reference. Upload them in the AI's interface BEFORE pasting the generated prompt. Supported by ChatGPT, Claude, Gemini, and Copilot.</span>
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label for="source-pasted-content">Or paste source content directly to embed in the prompt <span class="opt">(optional)</span></label>
+      <textarea id="source-pasted-content" style="min-height: 160px;" placeholder="Paste lecture notes, syllabus sections, key passages from a textbook chapter, journal article abstracts, learning objective expansions, course-specific terminology, common student misconceptions you want targeted, or any other source content the AI should draw from..."></textarea>
+      <p style="font-size:12px; color: var(--ink-muted); margin-top: 8px; line-height: 1.5;">This content is embedded directly into the generated prompt. Modern AI handles 100,000+ characters easily, so paste as much as is relevant. You can combine this with the upload option above.</p>
+    </div>
+
+    <!-- iRAT / tRAT -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">iRAT &amp; tRAT Specifications</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="info-box">
+      <strong>TBL doctrine applied.</strong> RAT cognitive level is floored at DOK 2 (conceptual understanding). DOK 1 (recall only) and DOK 4 (full integration) are deliberately excluded: the RAT exists to verify students grasped the foundational concepts from prework, not to test recall and not to substitute for the application exercise.
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-total-questions">
+        <label for="total-questions">Total questions <span class="req" aria-hidden="true">*</span></label>
+        <select id="total-questions" aria-required="true">
+          <option value="">Select number...</option>
+          <option>8</option><option>10</option><option>12</option><option>15</option><option>20</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select the number of questions.</div>
+      </div>
+      <div class="form-group" id="fg-dok-distribution">
+        <label for="dok-distribution">DOK distribution <span class="req" aria-hidden="true">*</span></label>
+        <select id="dok-distribution" aria-required="true">
+          <option value="">Select distribution...</option>
+          <option>Level 2 Only (conceptual understanding)</option>
+          <option>50% Level 2 & 50% Level 3 (recommended)</option>
+          <option>Level 3 Only (analytical, advanced learners)</option>
+          <option>Mixed Level 2 and Level 3</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a DOK distribution.</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-question-types">
+        <label for="question-types">Question types <span class="req" aria-hidden="true">*</span></label>
+        <select id="question-types" aria-required="true">
+          <option value="">Select type...</option>
+          <option>Multiple Choice Only</option>
+          <option>Include Multiple Answer</option>
+          <option>Mixed Formats</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a question type.</div>
+      </div>
+      <div class="form-group" id="fg-answer-distribution">
+        <label for="answer-distribution">Answer distribution <span class="req" aria-hidden="true">*</span></label>
+        <select id="answer-distribution" aria-required="true">
+          <option value="">Select distribution...</option>
+          <option>Equal A-D Distribution</option>
+          <option>Random Distribution</option>
+          <option>Custom Pattern</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select an answer distribution.</div>
+      </div>
+    </div>
+
+    <div class="form-group hidden" id="custom-sequence-group">
+      <label for="custom-sequence">Custom answer sequence</label>
+      <input id="custom-sequence" type="text" placeholder="e.g. A, B, C, D, A, B, C, D..."/>
+      <div class="field-error-msg" id="custom-seq-error" role="alert">Please enter a custom sequence matching your question count.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-prat-option">
+        <label for="prat-option">PRAT (Post-Readiness Assessment) <span class="req" aria-hidden="true">*</span></label>
+        <select id="prat-option" aria-required="true">
+          <option value="">Select PRAT option...</option>
+          <option>No PRAT</option>
+          <option>PRAT (Same # of Questions)</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a PRAT option.</div>
+      </div>
+      <div class="form-group" id="fg-exercise-format">
+        <label for="exercise-format">Application exercise format <span class="req" aria-hidden="true">*</span></label>
+        <select id="exercise-format" aria-required="true">
+          <option value="">Select format...</option>
+          <option>Standard Multiple Choice</option>
+          <option>Stimulus &rarr; Trigger &rarr; Branch Questions</option>
+          <option>Ranking Exercise</option>
+          <option>Mixed Format</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select an application exercise format.</div>
+      </div>
+    </div>
+
+    <!-- Application -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">Application &amp; Facilitation</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="info-box terra">
+      <strong>4S enforced.</strong> The application exercise is generated against the 4S framework (Significant problem, Same problem, Specific choice, Simultaneous reporting) with a defensible-disagreement requirement: the specific choice must be designed so reasonable, well-prepared teams could land on different answers and defend each. The AI is instructed to design the application FIRST, then build the RAT to scaffold the concepts it needs.
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-focus-area">
+        <label for="focus-area">Focus area <span class="req" aria-hidden="true">*</span></label>
+        <select id="focus-area" aria-required="true">
+          <option value="">Select focus...</option>
+          <option>Anatomy</option><option>Physiology</option><option>Pathophysiology</option>
+          <option>Clinical Medicine</option><option>Pharmacology</option><option>Integrated</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a focus area.</div>
+      </div>
+      <div class="form-group" id="fg-complexity-level">
+        <label for="complexity-level">Complexity level <span class="req" aria-hidden="true">*</span></label>
+        <select id="complexity-level" aria-required="true">
+          <option value="">Select complexity...</option>
+          <option>Intermediate Clinical Reasoning</option>
+          <option>Advanced Multi-System Integration</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a complexity level.</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" id="fg-session-duration">
+        <label for="session-duration">Session duration (minutes) <span class="req" aria-hidden="true">*</span></label>
+        <select id="session-duration" aria-required="true">
+          <option value="">Select duration...</option>
+          <option>60</option><option>90</option><option>120</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select a session duration.</div>
+      </div>
+      <div class="form-group" id="fg-instructor-experience">
+        <label for="instructor-experience">Instructor experience <span class="req" aria-hidden="true">*</span></label>
+        <select id="instructor-experience" aria-required="true">
+          <option value="">Select experience...</option>
+          <option>New to TBL</option>
+          <option>Experienced TBL Facilitator</option>
+        </select>
+        <div class="field-error-msg" role="alert">Please select instructor experience level.</div>
+      </div>
+    </div>
+
+    <div class="form-group" id="fg-reference-format">
+      <label for="reference-format">Reference format <span class="req" aria-hidden="true">*</span></label>
+      <select id="reference-format" aria-required="true">
+        <option value="">Select format...</option>
+        <option>Full Guide</option>
+        <option>Quick Reference Cards</option>
+      </select>
+      <div class="field-error-msg" role="alert">Please select a reference format.</div>
+    </div>
+
+    <!-- Export & Integration -->
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-label">Export &amp; Integration</div>
+      <div class="section-divider-line"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="check-row">
+        <input type="checkbox" id="intedashboard-export" />
+        <span><strong>Format iRAT, tRAT, and PRAT for InteDashboard import.</strong> Appends a tab-separated values (TSV) block to the AI's output that you can copy and paste directly into InteDashboard's question import at Step 2 of activity creation.</span>
+      </label>
+    </div>
+
+    <div class="info-box terra">
+      <strong>What this does.</strong> When checked, the AI generates the standard TBL session AND adds a separate TSV block formatted for InteDashboard's "Copy and Paste" question import method. The application exercise itself must still be set up manually in InteDashboard since application case formats vary too much for clean automated export.
+      <br><br>
+      <strong>Verify your template.</strong> The TSV schema reflects InteDashboard's documented field requirements (Question No., Question, Option A through E, Correct Answer, Points, Hint, Explanation). Download the current import template from inside InteDashboard at Step 2 of activity creation to confirm column order before bulk import. If columns have shifted, paste into Excel first and reorder before importing.
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-reset" onclick="resetForm()">Reset</button>
+      <button type="button" class="btn-generate" onclick="generatePrompt()"><span class="btn-mark" aria-hidden="true"></span>Design my session prompt</button>
+    </div>
+
+    <!-- Output -->
+    <div id="output" class="hidden">
+      <div class="output-card">
+        <div class="output-header">
+          <div class="output-header-left">
+            <div class="output-label">Generated prompt</div>
+            <div class="output-seq-badge" id="seq-badge"></div>
+          </div>
+          <div class="output-btn-row">
+            <button type="button" class="btn-regen" onclick="generatePrompt()" title="Regenerate with new answer sequence">Regenerate</button>
+            <button type="button" class="btn-copy" onclick="copyPrompt()">Copy</button>
+          </div>
+        </div>
+        <div class="output-text" id="final-prompt" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <!-- AI buttons -->
+    <div class="ai-section">
+      <div class="ai-section-label">Open your preferred AI platform and paste your prompt</div>
+      <div class="ai-buttons">
+        <a href="https://chatgpt.com/" target="_blank" rel="noopener" class="ai-btn"><span class="ai-btn-mark" aria-hidden="true"></span>ChatGPT</a>
+        <a href="https://claude.ai/new" target="_blank" rel="noopener" class="ai-btn"><span class="ai-btn-mark" aria-hidden="true"></span>Claude</a>
+        <a href="https://gemini.google.com/app" target="_blank" rel="noopener" class="ai-btn"><span class="ai-btn-mark" aria-hidden="true"></span>Gemini</a>
+        <a href="https://copilot.microsoft.com/" target="_blank" rel="noopener" class="ai-btn"><span class="ai-btn-mark" aria-hidden="true"></span>Copilot</a>
+      </div>
+      <p class="ai-hint">Prompt auto-copies to clipboard when generated. Paste with <span class="kbd">Ctrl+V</span> or <span class="kbd">Cmd+V</span>.</p>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div>
+    <div class="footer-brand">MedMasters Launch Studio</div>
+    <div class="footer-sub">A MedMasters Collaborative Company</div>
+  </div>
+  <div class="footer-right">Faculty Tool &nbsp;&middot;&nbsp; medmasterscollaborative.com</div>
+</footer>
+
+<div class="copy-toast" id="copy-toast" role="status" aria-live="polite">Prompt copied to clipboard</div>
+
+<script>
+// Required field IDs
+const REQUIRED = [
+  { fg: "fg-course-level",        el: "course-level",        type: "select" },
+  { fg: "fg-student-programs",    el: "student-programs",    type: "select" },
+  { fg: "fg-total-questions",     el: "total-questions",     type: "select" },
+  { fg: "fg-dok-distribution",    el: "dok-distribution",    type: "select" },
+  { fg: "fg-question-types",      el: "question-types",      type: "select" },
+  { fg: "fg-answer-distribution", el: "answer-distribution", type: "select" },
+  { fg: "fg-prat-option",         el: "prat-option",         type: "select" },
+  { fg: "fg-exercise-format",     el: "exercise-format",     type: "select" },
+  { fg: "fg-focus-area",          el: "focus-area",          type: "select" },
+  { fg: "fg-complexity-level",    el: "complexity-level",    type: "select" },
+  { fg: "fg-session-duration",    el: "session-duration",    type: "select" },
+  { fg: "fg-instructor-experience",el:"instructor-experience",type: "select" },
+  { fg: "fg-reference-format",    el: "reference-format",    type: "select" }
+];
+
+// Progress bar
+function updateProgress() {
+  let filled = 0;
+  REQUIRED.forEach(function(f) {
+    const el = document.getElementById(f.el);
+    if (el && el.value.trim() !== "") filled++;
+  });
+  const pct = Math.round((filled / REQUIRED.length) * 100);
+  document.getElementById("progress-fill").style.width = pct + "%";
+  document.getElementById("progress-count").textContent = filled + " / " + REQUIRED.length;
+}
+
+REQUIRED.forEach(function(f) {
+  const el = document.getElementById(f.el);
+  if (el) {
+    el.addEventListener("change", updateProgress);
+    el.addEventListener("input", updateProgress);
+  }
+});
+
+// Custom sequence toggle
+document.getElementById("answer-distribution").addEventListener("change", function() {
+  const g = document.getElementById("custom-sequence-group");
+  this.value === "Custom Pattern" ? g.classList.remove("hidden") : g.classList.add("hidden");
+  updateProgress();
+});
+
+// Answer sequence algorithms
+function generateEqualSequence(n) {
+  var letters = ["A","B","C","D"];
+  var pool = [];
+  var base = Math.floor(n / 4);
+  var remainder = n % 4;
+  var shuffledLetters = shuffleArray(letters.slice());
+  shuffledLetters.forEach(function(l, i) {
+    var count = base + (i < remainder ? 1 : 0);
+    for (var j = 0; j < count; j++) pool.push(l);
+  });
+  pool = shuffleArray(pool);
+  return fixConsecutive(pool);
+}
+
+function generateRandomSequence(n) {
+  var letters = ["A","B","C","D"];
+  var seq = [];
+  for (var i = 0; i < n; i++) {
+    var candidates = letters.slice();
+    if (seq.length >= 2 && seq[seq.length - 1] === seq[seq.length - 2]) {
+      candidates = candidates.filter(function(c) { return c !== seq[seq.length - 1]; });
+    }
+    seq.push(candidates[Math.floor(Math.random() * candidates.length)]);
+  }
+  return seq;
+}
+
+function shuffleArray(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
+function fixConsecutive(arr) {
+  for (var i = 2; i < arr.length; i++) {
+    if (arr[i] === arr[i - 1] && arr[i] === arr[i - 2]) {
+      for (var j = i + 1; j < arr.length; j++) {
+        if (arr[j] !== arr[i]) {
+          var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+          break;
+        }
+      }
+    }
+  }
+  return arr;
+}
+
+// DOK definitions
+var DOK_DEFS = {
+  "Level 2 Only (conceptual understanding)": {
+    levels: ["Level 2"],
+    definitions: {
+      "Level 2": "DOK Level 2 (Skills and Concepts): The question requires the student to use conceptual knowledge to interpret, classify, estimate, summarize, or apply a procedure to a familiar type of problem. There must be some decision-making: the student must select and apply the right concept, not just recall it. The stem should present information the student must process, not simply retrieve. Examples: interpret a graph or lab value, identify the physiological mechanism behind a described finding, apply a formula to a given scenario."
+    }
+  },
+  "50% Level 2 & 50% Level 3 (recommended)": {
+    levels: ["Level 2", "Level 3"],
+    definitions: {
+      "Level 2": "DOK Level 2 (Skills and Concepts): Apply conceptual knowledge to interpret, classify, or apply a procedure to a familiar type of problem. The student must select and use the right concept, not merely retrieve it.",
+      "Level 3": "DOK Level 3 (Strategic Thinking, foundational concept reasoning): Reason about a foundational concept by evaluating competing explanations or justifying a choice using evidence. IMPORTANT for TBL: At the RAT stage, Level 3 questions must focus on reasoning ABOUT foundational concepts from the prework, NOT on full clinical decision-making. Full clinical scenarios with multi-step decisions belong in the application exercise, not the RAT."
+    }
+  },
+  "Level 3 Only (analytical, advanced learners)": {
+    levels: ["Level 3"],
+    definitions: {
+      "Level 3": "DOK Level 3 (Strategic Thinking, foundational concept reasoning): The question requires reasoning, evaluating competing explanations, or justifying a choice using evidence about a foundational concept from the prework. IMPORTANT for TBL: At the RAT stage, this means probing depth of conceptual understanding, NOT testing full clinical decision-making. Multi-step clinical scenarios with defensible-disagreement choices belong in the application exercise. A good Level 3 RAT question asks the student to reason about which mechanism best explains a phenomenon, or which interpretation of a concept is best supported by evidence."
+    }
+  },
+  "Mixed Level 2 and Level 3": {
+    levels: ["Level 2", "Level 3"],
+    definitions: {
+      "Level 2": "DOK Level 2 (Skills and Concepts): Apply conceptual knowledge to interpret, classify, or apply a procedure to a familiar type of problem. The student must select and use the right concept, not merely retrieve it.",
+      "Level 3": "DOK Level 3 (Strategic Thinking, foundational concept reasoning): Reason about a foundational concept by evaluating competing explanations or justifying a choice using evidence. Focus on conceptual depth, not clinical decision-making (the latter is reserved for the application exercise)."
+    }
+  }
+};
+
+var DOK_VERIFICATION = "\n\nQUALITY GATE, DOK VERIFICATION (apply to every question before finalizing):\n" +
+  "For each question, explicitly verify it meets the stated DOK level using these tests:\n" +
+  "  Level 1 check: Can a student answer this by recall alone, without any processing? If yes, it qualifies as Level 1. If the student must interpret or decide, it does NOT qualify.\n" +
+  "  Level 2 check: Does the stem require the student to do something with the information (interpret, classify, calculate, apply)? Is there at least one plausible distractor that reflects a common misconception? If both yes, it qualifies as Level 2.\n" +
+  "  Level 3 check: Is the scenario novel (not a textbook example)? Does the student have to weigh competing explanations or reason from incomplete information? Are all distractors defensible to a student who partially understands the content? If all three, it qualifies as Level 3.\n" +
+  "  Level 4 check: Does the correct answer REQUIRE integration across at least two content domains? Would a student who mastered each domain individually but missed the connection plausibly select a distractor? If both yes, it qualifies as Level 4.\n" +
+  "If a question fails its DOK check, revise it before including it. Do not simply relabel. A question that tests recall is Level 1 regardless of how it is framed.";
+
+// Validation
+function validate() {
+  var valid = true;
+  REQUIRED.forEach(function(f) {
+    var el = document.getElementById(f.el);
+    var fg = document.getElementById(f.fg);
+    if (!el || !fg) return;
+    if (el.value.trim() === "") {
+      fg.classList.add("field-error");
+      valid = false;
+    } else {
+      fg.classList.remove("field-error");
+    }
+  });
+
+  var adist = document.getElementById("answer-distribution").value;
+  if (adist === "Custom Pattern") {
+    var seq = document.getElementById("custom-sequence").value.trim();
+    var n = parseInt(document.getElementById("total-questions").value) || 0;
+    var parts = seq.split(/[\s,]+/).filter(function(s){ return s.length > 0; });
+    var seqGroup = document.getElementById("custom-sequence-group");
+    var seqErr = document.getElementById("custom-seq-error");
+    if (seq === "" || (n > 0 && parts.length !== n)) {
+      seqGroup.classList.add("field-error");
+      if (n > 0) {
+        seqErr.textContent = "Please enter exactly " + n + " answers (A, B, C, or D), separated by commas or spaces.";
+      }
+      valid = false;
+    } else {
+      seqGroup.classList.remove("field-error");
+    }
+  }
+
+  return valid;
+}
+
+REQUIRED.forEach(function(f) {
+  var el = document.getElementById(f.el);
+  var fg = document.getElementById(f.fg);
+  if (el && fg) {
+    el.addEventListener("change", function() { fg.classList.remove("field-error"); });
+    el.addEventListener("input",  function() { fg.classList.remove("field-error"); });
+  }
+});
+
+function val(id) { return (document.getElementById(id) || {}).value || ""; }
+
+// Generate
+function generatePrompt() {
+  if (!validate()) {
+    var first = document.querySelector(".field-error");
+    if (first) first.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+
+  // Read source materials inputs up front so LO/prework fallback can reference them
+  var sourceUploadFlag = document.getElementById("source-upload-flag").checked;
+  var sourcePasted = (document.getElementById("source-pasted-content") || {value:""}).value.trim();
+  var hasSources = sourceUploadFlag || sourcePasted;
+
+  var LO_raw = val("learning-objectives");
+  var prework_raw = val("prework-materials");
+
+  var LO = LO_raw
+    ? LO_raw
+    : hasSources
+      ? "[Not specified separately. Derive 3 to 5 specific, measurable learning objectives from the source materials above. State them explicitly at the top of your output so the instructor can review and adjust.]"
+      : "[Not specified. Infer reasonable, measurable learning objectives appropriate for the focus area, course level, and student programs below. State them explicitly at the top of your output so the instructor can review and adjust before using the session.]";
+
+  var prework = prework_raw
+    ? prework_raw
+    : hasSources
+      ? "[Not specified separately. Use the source materials above as the prework reference and generate a prework checklist that maps directly to the concepts those materials cover.]"
+      : "[Not specified. Suggest a prework reading and activity list appropriate for the focus area, course level, and learning objectives. Indicate estimated time per item.]";
+  var highYield = val("high-yield-topics");
+  var course    = val("course-level");
+  var program   = val("student-programs");
+  var totalQ    = val("total-questions");
+  var dok       = val("dok-distribution");
+  var qtype     = val("question-types");
+  var adist     = val("answer-distribution");
+  var customSeq = val("custom-sequence");
+  var prat      = val("prat-option");
+  var exFormat  = val("exercise-format");
+  var focus     = val("focus-area");
+  var complexity= val("complexity-level");
+  var duration  = val("session-duration");
+  var instructor= val("instructor-experience");
+  var ref       = val("reference-format");
+
+  var n = parseInt(totalQ) || 10;
+  var seqArr = [];
+  var seqDesc = "";
+
+  if (adist === "Equal A-D Distribution") {
+    seqArr = generateEqualSequence(n);
+    seqDesc = "Equal A-D distribution, no more than 2 consecutive identical answers";
+  } else if (adist === "Random Distribution") {
+    seqArr = generateRandomSequence(n);
+    seqDesc = "Randomized distribution, no more than 2 consecutive identical answers";
+  } else if (adist === "Custom Pattern") {
+    var parts = customSeq.split(/[\s,]+/).filter(function(s){ return s.length > 0; });
+    seqArr = parts.map(function(s){ return s.toUpperCase(); });
+    seqDesc = "Custom sequence as specified";
+  }
+
+  var seqString = seqArr.map(function(l, i){ return (i+1) + ":" + l; }).join("  ");
+  var seqDisplay = seqArr.join("-");
+
+  document.getElementById("seq-badge").textContent = seqDisplay;
+
+  var dokDef = DOK_DEFS[dok];
+  var dokBlock = "";
+  if (dokDef) {
+    dokBlock = "\nDOK LEVEL DEFINITIONS (these are operational requirements, not labels):\n";
+    dokDef.levels.forEach(function(lvl) {
+      dokBlock += "  " + dokDef.definitions[lvl] + "\n";
+    });
+    dokBlock += DOK_VERIFICATION;
+  }
+
+  var p = "";
+  p += "You are an expert Team-Based Learning (TBL) facilitator and medical educator.\n";
+  p += "Create a complete TBL session using the 4 S framework (Same problem, Significant problem, Specific choice, Simultaneous reporting).\n";
+
+  // Source materials (optional, can be upload-only, paste-only, or both)
+  if (sourceUploadFlag || sourcePasted) {
+    p += "\n=== SOURCE MATERIALS (USE AS PRIMARY REFERENCE) ===\n\n";
+    if (sourceUploadFlag && sourcePasted) {
+      p += "Two sources of instructor-provided material apply to this session.\n\n";
+      p += "1. UPLOADED DOCUMENTS: The instructor has uploaded source documents (PDFs, slides, articles, syllabus, lecture notes, etc.) directly to this conversation BEFORE this prompt was pasted. Treat them as primary references. If no documents are visible to you, stop and ask the instructor to upload them before proceeding.\n\n";
+      p += "2. PASTED SOURCE CONTENT (verbatim below):\n";
+      p += "--- BEGIN PASTED SOURCE CONTENT ---\n";
+      p += sourcePasted + "\n";
+      p += "--- END PASTED SOURCE CONTENT ---\n\n";
+      p += "Use BOTH sources together as your primary reference for every question, rationale, scenario, and application exercise generated below. ";
+    } else if (sourceUploadFlag) {
+      p += "The instructor has uploaded source documents (PDFs, slides, articles, syllabus, lecture notes, etc.) directly to this conversation BEFORE this prompt was pasted. Use those documents as your primary reference for every question, rationale, scenario, and application exercise generated below.\n\n";
+      p += "If no documents are visible to you in this conversation, stop and ask the instructor to upload them before proceeding. Do NOT proceed with general-knowledge content.\n\n";
+    } else {
+      p += "The following source content was provided verbatim by the instructor. Use it as your primary reference for every question, rationale, scenario, and application exercise generated below:\n\n";
+      p += "--- BEGIN SOURCE CONTENT ---\n";
+      p += sourcePasted + "\n";
+      p += "--- END SOURCE CONTENT ---\n\n";
+    }
+    p += "Grounding rules (apply to every output below):\n";
+    p += "  - Use the specific terminology, definitions, mechanisms, drug names, and clinical approaches present in the instructor's sources, not your default general-knowledge versions.\n";
+    p += "  - Build distractors that target misconceptions the source materials specifically address or expose.\n";
+    p += "  - When the application case requires a clinical scenario, prefer scenarios that align with cases or patient examples in the source materials.\n";
+    p += "  - Where the source materials conflict with what you would otherwise generate from general knowledge, the source materials win.\n";
+    if (sourceUploadFlag && sourcePasted) {
+      p += "  - Where the uploaded documents and the pasted content conflict with each other, prefer the more authoritative source (peer-reviewed literature > current edition textbook > lecture material > syllabus summary).\n";
+    }
+    p += "  - In rationales, reference the source where helpful (e.g., \"As described in [source name or section]...\") so students see the connection to their assigned materials.\n";
+  }
+
+  p += "\n=== INPUT PARAMETERS ===\n";
+
+  p += "\nCONTENT AND CONTEXT:\n";
+  p += "  Learning Objectives: " + LO + "\n";
+  p += "  Prework Materials: " + prework + "\n";
+  if (highYield) p += "  High-Yield Topics: " + highYield + "\n";
+  p += "  Course Level: " + course + "\n";
+  p += "  Student Programs: " + program + "\n";
+  p += "  Session Duration: " + duration + " minutes\n";
+
+  p += "\niRAT AND tRAT SPECIFICATIONS:\n";
+  p += "  Total Questions: " + n + "\n";
+  p += "  DOK Distribution: " + dok + "\n";
+  p += "  Question Types: " + qtype + "\n";
+  p += "  Answer Distribution: " + seqDesc + "\n";
+  p += "  REQUIRED Answer Sequence (use this exact sequence in order for questions 1 to " + n + "):\n";
+  p += "    " + seqString + "\n";
+  p += "  PRAT Option: " + prat + "\n";
+
+  p += "\nAPPLICATION EXERCISE:\n";
+  p += "  Format: " + exFormat + "\n";
+  p += "  Focus Area: " + focus + "\n";
+  p += "  Complexity Level: " + complexity + "\n";
+
+  if (exFormat === "Stimulus \u2192 Trigger \u2192 Branch Questions") {
+    p += "\nSTIMULUS TO TRIGGER TO BRANCH STRUCTURE:\n";
+    p += "  Open with a clinical stimulus (patient scenario, lab results, imaging).\n";
+    p += "  Follow with trigger questions requiring critical decisions.\n";
+    p += "  Each trigger branches into three questions exploring alternative reasoning paths.\n";
+    p += "  Require teams to defend decisions and connect to learning objectives.\n";
+  }
+
+  p += "\nFACILITATION SUPPORT:\n";
+  p += "  Instructor Experience: " + instructor + "\n";
+  p += "  Reference Format: " + ref + "\n";
+
+  if (dokBlock) {
+    p += "\n=== DOK REQUIREMENTS ===";
+    p += dokBlock;
+  }
+
+  // TBL DOCTRINE (non-negotiable). Defines how RAT and Application relate.
+  p += "\n\n=== TBL DOCTRINE (NON-NEGOTIABLE) ===\n";
+
+  p += "\nBACKWARD DESIGN ORDER:\n";
+  p += "  Although the REQUIRED OUTPUTS below list prework, iRAT, tRAT, then application, you must DESIGN them in reverse order:\n";
+  p += "    Step 1: Design the application exercise FIRST. Identify the specific defensible choice teams will be forced to make, and identify the foundational concepts a team must understand to make that choice well.\n";
+  p += "    Step 2: Build the RAT questions to test ONLY those foundational concepts at conceptual-understanding level. The RAT exists to scaffold the application, not to mirror it.\n";
+  p += "    Step 3: Build the prework checklist so students arrive having covered exactly the concepts the RAT will test.\n";
+  p += "  Output them in standard order, but reason through them in reverse. Every RAT question must trace back to a concept the application requires.\n";
+
+  p += "\niRAT AND tRAT COGNITIVE LEVEL CONSTRAINT:\n";
+  p += "  RAT questions test whether students completed the prework and grasped foundational concepts. They are NOT a mini-application exercise.\n";
+  p += "  Hard rules:\n";
+  p += "    - No pure recall questions. Every question must require the student to interpret, classify, apply a concept, or reason about a foundational mechanism. If a student can answer it by memorization alone, redesign or remove it.\n";
+  p += "    - No full clinical decision-making questions. If a question requires multi-system integration, ranking competing therapies, or the kind of defensible-disagreement choice that defines a TBL application, it does NOT belong in the RAT. Move it to the application exercise.\n";
+  p += "    - A good RAT question: \"Which mechanism best explains [foundational physiological observation]?\" A bad RAT question (too low): \"What is the definition of [term]?\" A bad RAT question (too high, belongs in application): \"For this 64-year-old patient with these labs, which treatment regimen should the team recommend?\"\n";
+  p += "  All RAT distractors must reflect specific, common student misconceptions about the foundational concept. Generic wrong answers are not acceptable.\n";
+
+  p += "\n4S VERIFICATION GATE FOR THE APPLICATION EXERCISE:\n";
+  p += "  Before finalizing the application exercise, verify it passes each of the 4S tests. If any fail, redesign:\n";
+  p += "    SIGNIFICANT PROBLEM: Is this a problem practicing clinicians actually face? Would a student in the target program view it as professionally meaningful? If no to either, redesign.\n";
+  p += "    SAME PROBLEM: Are all teams given the identical problem? Different scenarios across teams break TBL. Confirm one shared problem.\n";
+  p += "    SPECIFIC CHOICE: Are teams forced to commit to ONE specific answer from a defined, narrow set of options? Open-ended discussions and \"explore in your team\" prompts are NOT 4S-compliant. The choice must be a defensible commitment.\n";
+  p += "    SIMULTANEOUS REPORTING: Is there a mechanism for all teams to reveal their answer at the same moment (voting cards held up, IF-AT scratch-off, gallery posting, simultaneous app submission)? Sequential reporting is NOT 4S-compliant.\n";
+
+  p += "\nDEFENSIBLE DISAGREEMENT REQUIREMENT:\n";
+  p += "  The specific choice MUST be designed so that reasonable, well-prepared teams could land on different answers and defend each one. This is the engine of TBL application learning.\n";
+  p += "  Test this before finalizing: can you write a defensible argument for at least TWO of the answer options that a competent student could plausibly construct? If only one option is clearly correct on first reading, the exercise will not generate the productive disagreement TBL depends on. Redesign.\n";
+  p += "  Application choices should reflect competing real-world approaches, conflicting evidence, or genuine clinical tradeoffs, not contrived ambiguity.\n";
+
+  p += "\n\n=== REQUIRED OUTPUTS ===\n";
+  p += "\n1. PREWORK CHECKLIST: Time estimates and completion criteria for each item.\n";
+  p += "\n2. iRAT: " + n + " multiple-choice questions aligned to objectives.\n";
+  p += "   - Apply the iRAT/tRAT COGNITIVE LEVEL CONSTRAINT defined in the TBL DOCTRINE section above. No recall-only questions. No full clinical decision-making questions.\n";
+  p += "   - Use the REQUIRED Answer Sequence above: question 1 correct answer = " + (seqArr[0] || "A") + ", question 2 = " + (seqArr[1] || "B") + ", and so on.\n";
+  p += "   - Do NOT include the answer key in this section.\n";
+  p += "   - Every distractor must reflect a specific, common student misconception about the foundational concept.\n";
+
+  p += "\n3. tRAT: Same " + n + " questions with rationale for each option.\n";
+  p += "   - For each question, explain why the correct answer is correct AND why each distractor is incorrect.\n";
+  p += "   - The rationale for each distractor must name the specific misconception it targets, not simply state it is wrong.\n";
+
+  var hasPrat = prat === "PRAT (Same # of Questions)";
+  if (hasPrat) {
+    p += "\n4. PRAT: " + n + " new questions covering the same objectives as the iRAT.\n";
+    p += "   - Questions must be novel (do not reuse stems or scenarios from iRAT).\n";
+    p += "   - Apply the same TBL cognitive constraint, DOK distribution, and answer sequence logic.\n";
+    p += "\n5. APPLICATION EXERCISE: Must pass the 4S VERIFICATION GATE and the DEFENSIBLE DISAGREEMENT REQUIREMENT defined above. State explicitly in your output how the exercise satisfies each S, and identify which two (or more) answer options have defensible arguments.\n";
+    p += "\n6. FACILITATION GUIDE: Timing breakdown, discussion prompts, and common student misconceptions surfaced by the RAT.\n";
+    p += "\n7. ANSWER KEYS AND RATIONALES: Placed at the end of the document only.\n";
+  } else {
+    p += "\n4. APPLICATION EXERCISE: Must pass the 4S VERIFICATION GATE and the DEFENSIBLE DISAGREEMENT REQUIREMENT defined above. State explicitly in your output how the exercise satisfies each S, and identify which two (or more) answer options have defensible arguments.\n";
+    p += "\n5. FACILITATION GUIDE: Timing breakdown, discussion prompts, and common student misconceptions surfaced by the RAT.\n";
+    p += "\n6. ANSWER KEYS AND RATIONALES: Placed at the end of the document only.\n";
+  }
+
+  p += "\nEVIDENCE STANDARD:\n";
+  p += "  Base every question, answer, and rationale on the highest level of evidence available: current peer-reviewed literature, current clinical practice guidelines from recognized professional organizations, current edition standard textbooks for the discipline, and authoritative regulatory or public health bodies (CDC, WHO, FDA). Do not use outdated practices, blog posts, study apps, anecdotal evidence, or unverified online sources.\n";
+
+  // InteDashboard TSV export block (optional)
+  var idExport = document.getElementById("intedashboard-export").checked;
+  if (idExport) {
+    p += "\n=== INTEDASHBOARD CSV EXPORT (REQUIRED ADDITIONAL OUTPUT) ===\n\n";
+    p += "In addition to the standard outputs above, you MUST also emit tab-separated values (TSV) blocks for direct copy-paste import into InteDashboard.\n\n";
+    p += "OUTPUT STRUCTURE:\n";
+    p += "  1. After the standard iRAT/tRAT sections, output a code-fenced block labeled INTEDASHBOARD_IRAT_TSV containing the iRAT and tRAT questions in TSV format (they share the same questions).\n";
+    if (hasPrat) {
+      p += "  2. After the standard PRAT section, output a second code-fenced block labeled INTEDASHBOARD_PRAT_TSV for the PRAT questions in TSV format.\n";
+    }
+    p += "\nTSV COLUMN STRUCTURE (header row first, then one row per question, fields separated by a single literal TAB character):\n";
+    p += "  Question No.\tQuestion\tOption A\tOption B\tOption C\tOption D\tOption E\tCorrect Answer\tPoints\tHint\tExplanation\n";
+    p += "\nRULES FOR THE TSV OUTPUT:\n";
+    p += "  - Use literal TAB characters between fields. Not spaces. Not pipes. Not commas.\n";
+    p += "  - 'Question' column contains the full question stem with all clinical context, lab values, and scenario information inline. Do not use line breaks within a cell. If the original question included line breaks, replace them with spaces or sentence separators.\n";
+    p += "  - 'Option A' through 'Option D' contain the four answer choices. Leave 'Option E' empty (output an empty cell, just two adjacent tabs) unless a fifth option is genuinely used.\n";
+    p += "  - 'Correct Answer' is a single uppercase letter (A, B, C, D, or E) matching the REQUIRED Answer Sequence specified earlier.\n";
+    p += "  - 'Points' is 1 unless the activity requires weighted scoring.\n";
+    p += "  - 'Hint' is a brief one-sentence pointer to the underlying concept without revealing the answer. Leave empty if no hint applies.\n";
+    p += "  - 'Explanation' contains the rationale: why the correct answer is correct AND why the most tempting distractor is wrong. Keep to 2 to 3 sentences.\n";
+    p += "  - Replace any internal tab characters in question text with single spaces.\n";
+    p += "  - Do not include any markdown, asterisks, or bullet characters inside cells.\n";
+    p += "\nUSAGE: The instructor will copy each TSV block (including the header row) and paste it directly into InteDashboard's Step 2 (Add Questions) using the Copy and Paste import method. The application exercise must still be set up manually in InteDashboard since application case formats vary.\n";
+  }
+
+  p += "\nGenerate a complete, ready-to-implement TBL session that maximizes student engagement and clinical reasoning.";
+
+  document.getElementById("final-prompt").textContent = p;
+  document.getElementById("output").classList.remove("hidden");
+  document.getElementById("output").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  navigator.clipboard.writeText(p).then(showToast, function(){});
+}
+
+// Copy
+function copyPrompt() {
+  var txt = document.getElementById("final-prompt").textContent;
+  navigator.clipboard.writeText(txt).then(showToast, function(){});
+}
+
+// Reset
+function resetForm() {
+  REQUIRED.forEach(function(f) {
+    var el = document.getElementById(f.el);
+    var fg = document.getElementById(f.fg);
+    if (el) el.value = "";
+    if (fg) fg.classList.remove("field-error");
+  });
+  document.getElementById("high-yield-topics").value = "";
+  document.getElementById("custom-sequence").value = "";
+  document.getElementById("custom-sequence-group").classList.add("hidden");
+  document.getElementById("intedashboard-export").checked = false;
+  document.getElementById("source-upload-flag").checked = false;
+  document.getElementById("source-pasted-content").value = "";
+  document.getElementById("output").classList.add("hidden");
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Toast
+function showToast() {
+  var t = document.getElementById("copy-toast");
+  t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); }, 2400);
+}
+
+// Init
+updateProgress();
+</script>
+
+<!-- Kajabi iframe height-sender -->
+<script>
+(function(){
+  function sendHeight(){
+    var h = document.documentElement.scrollHeight;
+    try {
+      window.parent.postMessage({ type: "resize", id: "tbl-session-creator", height: h }, "*");
+    } catch(e) {}
+  }
+  if ("ResizeObserver" in window) {
+    try { new ResizeObserver(sendHeight).observe(document.documentElement); } catch(e) {}
+  }
+  window.addEventListener("load", sendHeight);
+  window.addEventListener("resize", sendHeight);
+  document.addEventListener("DOMContentLoaded", sendHeight);
+  sendHeight();
+})();
+</script>
+</body>
+</html>
