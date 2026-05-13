@@ -266,6 +266,46 @@ img,svg{display:block;}
 .checkbox-row{display:flex;align-items:center;gap:8px;font-size:14px;}
 .checkbox-row input[type=checkbox]{width:16px;height:16px;}
 
+/* ===== My Cards view ===== */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width: 600px){ .form-row{ grid-template-columns:1fr; } }
+.field-input.small{font-size:14px;padding:8px 10px;}
+.field-textarea{width:100%;font-family:var(--font-body);font-size:14px;padding:10px 12px;border:1px solid var(--rule-soft);border-radius:4px;background:#fff;color:var(--ink-soft);resize:vertical;min-height:60px;}
+.field-textarea:focus{outline:2px solid var(--navy);outline-offset:0;border-color:var(--navy);}
+.radio-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
+.radio-row label{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;}
+.back-pair-row{display:grid;grid-template-columns:180px 1fr 32px;gap:8px;margin-bottom:8px;align-items:start;}
+.back-pair-row .field-input{margin:0;}
+.back-pair-remove{
+  background:#fff;border:1px solid var(--rule-soft);color:var(--terra-text);border-radius:4px;cursor:pointer;
+  font-family:var(--font-display);font-weight:700;font-size:16px;line-height:1;padding:0;
+  width:32px;height:38px;display:flex;align-items:center;justify-content:center;
+}
+.back-pair-remove:hover{border-color:var(--terra);background:var(--bg-soft);}
+.btn-add-pair{
+  font-family:var(--font-display);font-weight:600;font-size:13px;
+  background:#fff;border:1px dashed var(--rule);color:var(--navy);
+  border-radius:4px;padding:8px 14px;cursor:pointer;margin-top:4px;
+}
+.btn-add-pair:hover{border-color:var(--navy);background:var(--bg-soft);}
+.btn-add-pair:disabled{color:var(--ink-muted);border-color:var(--rule-soft);cursor:not-allowed;}
+.form-msg{font-size:13px;padding:8px 12px;border-radius:4px;margin-top:10px;display:none;}
+.form-msg.error{display:block;background:var(--terra-pale);color:var(--terra-text);border:1px solid var(--terra-bright);}
+.form-msg.success{display:block;background:#fff;color:var(--navy);border:1px solid var(--rule-soft);box-shadow:var(--shadow-card);}
+
+.user-card-item{
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:14px 16px;
+  box-shadow:var(--shadow-card);margin-bottom:10px;
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;
+}
+.user-card-item .uc-front{font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--navy);margin-bottom:6px;}
+.user-card-item .uc-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.user-card-item .uc-back{font-size:13px;color:var(--ink-soft);line-height:1.55;}
+.user-card-item .uc-back .uc-label{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--terra-text);}
+.user-card-item .uc-actions{display:flex;gap:6px;flex-shrink:0;}
+.user-card-empty{padding:24px;text-align:center;color:var(--ink-muted);font-size:14px;border:1px dashed var(--rule-soft);border-radius:4px;}
+.pill.user{background:var(--terra);color:#fff;}
+
 /* ===== Reports view ===== */
 .report-header{
   display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:18px;
@@ -390,6 +430,7 @@ html,body{overflow-x:hidden;}
   <span class="nav-tag" id="course-tag">Template</span>
   <span class="nav-spacer"></span>
   <button class="nav-btn active" data-view="dashboard" type="button">Dashboard</button>
+  <button class="nav-btn" data-view="mycards" type="button">My Cards</button>
   <button class="nav-btn" data-view="report" type="button">Report</button>
   <button class="nav-btn" data-view="settings" type="button">Settings</button>
 </nav>
@@ -542,6 +583,84 @@ html,body{overflow-x:hidden;}
       <span>Student signature:</span><span class="sig-line"></span>
       <span style="margin-left:24px;">Date:</span><span class="sig-line" style="min-width:120px;"></span>
     </div>
+  </div>
+</section>
+
+<!-- ============= MY CARDS VIEW ============= -->
+<section id="view-mycards" class="view" aria-label="My cards">
+  <header class="hero">
+    <h1>My <span style="color:var(--terra);">Cards</span></h1>
+    <p>Add your own cards to the deck for topics you're struggling with or details your instructor emphasized. Your cards mix into the daily review queue alongside the course cards and follow the same spaced-recall schedule. They live only on this device and browser.</p>
+  </header>
+
+  <div class="panel">
+    <h2>Add a new card</h2>
+    <p>Pick a card style, fill in the topic and what you want to recall, then add it to your deck.</p>
+
+    <div class="field">
+      <div class="field-label">Card style</div>
+      <div class="radio-row">
+        <label><input type="radio" name="user-type" value="row" checked> Multi-dimension recall (compare several aspects)</label>
+        <label><input type="radio" name="user-type" value="pathog"> Simple identification (when you see X, recall Y)</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="user-front">Topic / front of card</label>
+      <input class="field-input" id="user-front" type="text" placeholder="e.g. Loop of Henle, or Crushing chest pain with ST elevation">
+      <div class="field-help">The headline a student sees first. Keep it short.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label class="field-label" for="user-system">System / unit</label>
+        <select class="field-input" id="user-system"></select>
+      </div>
+      <div class="field">
+        <label class="field-label" for="user-category">Category label</label>
+        <input class="field-input" id="user-category" type="text" placeholder="My custom cards">
+        <div class="field-help">Free text. Helps group related cards.</div>
+      </div>
+    </div>
+
+    <div id="user-back-row-mode">
+      <div class="field-label" style="margin-bottom:6px;">What you need to recall</div>
+      <div class="field-help" style="margin-bottom:10px;">Add up to four label/value pairs. The labels become the "you need to recall" prompts on the card front; the values are revealed when you flip it.</div>
+      <div id="user-back-pairs">
+        <div class="back-pair-row">
+          <input class="field-input small" type="text" placeholder="Label (e.g. Mechanism)" data-pair-label>
+          <input class="field-input small" type="text" placeholder="Value (e.g. RAAS activated by low BP)" data-pair-value>
+          <button class="back-pair-remove" type="button" title="Remove this row" aria-label="Remove this row">&times;</button>
+        </div>
+        <div class="back-pair-row">
+          <input class="field-input small" type="text" placeholder="Label (e.g. Tested detail)" data-pair-label>
+          <input class="field-input small" type="text" placeholder="Value" data-pair-value>
+          <button class="back-pair-remove" type="button" title="Remove this row" aria-label="Remove this row">&times;</button>
+        </div>
+      </div>
+      <button class="btn-add-pair" id="btn-add-pair" type="button">+ Add another field</button>
+    </div>
+
+    <div id="user-back-pathog-mode" style="display:none;">
+      <div class="field">
+        <label class="field-label" for="user-pathog-answer">Answer</label>
+        <textarea class="field-textarea" id="user-pathog-answer" rows="3" placeholder="e.g. STEMI (ST-elevation myocardial infarction)"></textarea>
+        <div class="field-help">What you should recall when you see the topic on the front.</div>
+      </div>
+    </div>
+
+    <div id="user-form-msg" class="form-msg"></div>
+
+    <div class="cta-row" style="margin-top:18px;">
+      <button class="btn-primary" id="btn-save-card" type="button">Add to my deck</button>
+      <button class="btn-secondary" id="btn-clear-form" type="button">Clear form</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Your cards (<span id="user-card-count">0</span>)</h2>
+    <p>These will appear in your study queue mixed with the course cards. Delete one and its progress goes with it.</p>
+    <div id="user-cards-list"></div>
   </div>
 </section>
 
@@ -821,7 +940,9 @@ window.COURSE_CARDS = [
   'use strict';
 
   var CFG   = window.COURSE_CONFIG || {};
-  var CARDS = window.COURSE_CARDS  || [];
+  var COURSE_CARDS = window.COURSE_CARDS || [];
+  var userCardsRaw = []; // populated after storage helpers defined
+  var CARDS = COURSE_CARDS.slice(); // combined deck, rebuilt when user cards change
 
   // Build SYSTEM_NAMES map: { key: name }
   var SYSTEM_NAMES = {};
@@ -848,6 +969,7 @@ window.COURSE_CARDS = [
     studentName: PREFIX + 'student_name',
     sessionId:   PREFIX + 'session_id',
     welcomeAck:  PREFIX + 'welcome_ack',
+    userCards:   PREFIX + 'user_cards',
   };
 
   function load(key, fallback){
@@ -866,7 +988,15 @@ window.COURSE_CARDS = [
 
   // ========== STATE ==========
   var CARD_BY_ID = {};
-  CARDS.forEach(function(c){ CARD_BY_ID[c.id] = c; });
+  var userCards = load(SK.userCards, []);
+  function rebuildDeck(){
+    CARDS.length = 0;
+    COURSE_CARDS.forEach(function(c){ CARDS.push(c); });
+    userCards.forEach(function(c){ CARDS.push(c); });
+    CARD_BY_ID = {};
+    CARDS.forEach(function(c){ CARD_BY_ID[c.id] = c; });
+  }
+  rebuildDeck();
 
   var DEFAULT_SETTINGS = {
     newPerDay: 20,
@@ -1065,6 +1195,7 @@ window.COURSE_CARDS = [
     if (name === 'dashboard') renderDashboard();
     if (name === 'settings')  renderSettings();
     if (name === 'report')    renderReport();
+    if (name === 'mycards')   renderMyCards();
     iframeHeight();
   }
 
@@ -1157,6 +1288,7 @@ window.COURSE_CARDS = [
       '<span class="pill">' + escapeHtml(sysName) + '</span>' +
       '<span class="pill ' + typePillClass + '">' + typeLabel + '</span>' +
       '<span class="pill" style="opacity:.7;">' + escapeHtml(card.cat) + '</span>' +
+      (card.user ? '<span class="pill user">Your card</span>' : '') +
       stateLabel;
     stage.appendChild(pillsEl);
 
@@ -1397,6 +1529,221 @@ window.COURSE_CARDS = [
     });
   }
 
+  // ========== MY CARDS ==========
+  var MAX_PAIRS = 4;
+  var editingId = null; // not currently used; reserved for future edit-in-place
+
+  function genUserCardId(){
+    var ts = Date.now().toString(36);
+    var rand = Math.random().toString(36).slice(2, 6);
+    return 'u_' + ts + '_' + rand;
+  }
+  function saveUserCards(){
+    save(SK.userCards, userCards);
+    rebuildDeck();
+  }
+
+  function renderMyCards(){
+    // Populate system dropdown
+    var sysSelect = document.getElementById('user-system');
+    sysSelect.innerHTML = '';
+    Object.keys(SYSTEM_NAMES).forEach(function(key){
+      var opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = SYSTEM_NAMES[key];
+      sysSelect.appendChild(opt);
+    });
+
+    // Render user cards list
+    var list = document.getElementById('user-cards-list');
+    var countEl = document.getElementById('user-card-count');
+    countEl.textContent = userCards.length;
+    list.innerHTML = '';
+
+    if (userCards.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'user-card-empty';
+      empty.textContent = 'You haven\u2019t added any cards yet. Use the form above to add your first one.';
+      list.appendChild(empty);
+    } else {
+      // Show newest first
+      var sorted = userCards.slice().sort(function(a,b){
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+      sorted.forEach(function(card){
+        var item = document.createElement('div');
+        item.className = 'user-card-item';
+        var sysName = SYSTEM_NAMES[card.sys] || card.sys;
+        var typeLabel = card.type === 'pathog' ? 'Simple identification' : 'Multi-dimension recall';
+
+        var backHtml = '';
+        if (Array.isArray(card.back)){
+          backHtml = card.back.map(function(pair){
+            return '<div style="margin-top:4px;"><span class="uc-label">' + escapeHtml(pair[0]) + '</span> &middot; ' + escapeHtml(pair[1]) + '</div>';
+          }).join('');
+        }
+
+        item.innerHTML =
+          '<div>' +
+            '<div class="uc-front">' + escapeHtml(card.front) + '</div>' +
+            '<div class="uc-pills">' +
+              '<span class="pill">' + escapeHtml(sysName) + '</span>' +
+              '<span class="pill user">Your card</span>' +
+              '<span class="pill" style="opacity:.7;">' + escapeHtml(typeLabel) + '</span>' +
+              (card.cat ? '<span class="pill" style="opacity:.7;">' + escapeHtml(card.cat) + '</span>' : '') +
+            '</div>' +
+            '<div class="uc-back">' + backHtml + '</div>' +
+          '</div>' +
+          '<div class="uc-actions">' +
+            '<button class="nav-btn small" data-action="delete" data-id="' + escapeHtml(card.id) + '" type="button">Delete</button>' +
+          '</div>';
+        list.appendChild(item);
+      });
+
+      // Wire delete buttons
+      list.querySelectorAll('button[data-action="delete"]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = btn.dataset.id;
+          var card = userCards.find(function(c){ return c.id === id; });
+          if (!card) return;
+          confirmAction(
+            'Delete this card?',
+            '"' + (card.front || 'Untitled') + '" and its review progress will be removed permanently. There is no undo.',
+            function(){
+              userCards = userCards.filter(function(c){ return c.id !== id; });
+              if (progress[id]){
+                delete progress[id];
+              }
+              saveUserCards();
+              persist();
+              renderMyCards();
+            }
+          );
+        });
+      });
+    }
+
+    // Reset form state to current radio mode
+    syncFormMode();
+    iframeHeight();
+  }
+
+  function getSelectedType(){
+    var checked = document.querySelector('input[name="user-type"]:checked');
+    return checked ? checked.value : 'row';
+  }
+  function syncFormMode(){
+    var type = getSelectedType();
+    document.getElementById('user-back-row-mode').style.display    = (type === 'row')    ? 'block' : 'none';
+    document.getElementById('user-back-pathog-mode').style.display = (type === 'pathog') ? 'block' : 'none';
+  }
+
+  function addBackPair(){
+    var container = document.getElementById('user-back-pairs');
+    if (container.children.length >= MAX_PAIRS) return;
+    var row = document.createElement('div');
+    row.className = 'back-pair-row';
+    row.innerHTML =
+      '<input class="field-input small" type="text" placeholder="Label" data-pair-label>' +
+      '<input class="field-input small" type="text" placeholder="Value" data-pair-value>' +
+      '<button class="back-pair-remove" type="button" title="Remove this row" aria-label="Remove this row">&times;</button>';
+    container.appendChild(row);
+    row.querySelector('.back-pair-remove').addEventListener('click', function(){
+      row.remove();
+      updateAddPairButtonState();
+    });
+    updateAddPairButtonState();
+  }
+  function updateAddPairButtonState(){
+    var container = document.getElementById('user-back-pairs');
+    var btn = document.getElementById('btn-add-pair');
+    btn.disabled = container.children.length >= MAX_PAIRS;
+  }
+
+  function showFormMsg(text, kind){
+    var el = document.getElementById('user-form-msg');
+    el.className = 'form-msg ' + (kind || '');
+    el.textContent = text;
+    if (kind === 'success'){
+      setTimeout(function(){
+        if (el.textContent === text){ el.className = 'form-msg'; el.textContent = ''; }
+      }, 4000);
+    }
+  }
+
+  function clearForm(){
+    document.querySelector('input[name="user-type"][value="row"]').checked = true;
+    document.getElementById('user-front').value = '';
+    document.getElementById('user-category').value = '';
+    document.getElementById('user-pathog-answer').value = '';
+    var container = document.getElementById('user-back-pairs');
+    container.innerHTML =
+      '<div class="back-pair-row">' +
+        '<input class="field-input small" type="text" placeholder="Label (e.g. Mechanism)" data-pair-label>' +
+        '<input class="field-input small" type="text" placeholder="Value (e.g. RAAS activated by low BP)" data-pair-value>' +
+        '<button class="back-pair-remove" type="button" title="Remove this row" aria-label="Remove this row">&times;</button>' +
+      '</div>' +
+      '<div class="back-pair-row">' +
+        '<input class="field-input small" type="text" placeholder="Label (e.g. Tested detail)" data-pair-label>' +
+        '<input class="field-input small" type="text" placeholder="Value" data-pair-value>' +
+        '<button class="back-pair-remove" type="button" title="Remove this row" aria-label="Remove this row">&times;</button>' +
+      '</div>';
+    container.querySelectorAll('.back-pair-remove').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        btn.closest('.back-pair-row').remove();
+        updateAddPairButtonState();
+      });
+    });
+    syncFormMode();
+    updateAddPairButtonState();
+    document.getElementById('user-form-msg').className = 'form-msg';
+    document.getElementById('user-form-msg').textContent = '';
+  }
+
+  function saveNewCard(){
+    var type = getSelectedType();
+    var front = document.getElementById('user-front').value.trim();
+    var sys = document.getElementById('user-system').value;
+    var cat = document.getElementById('user-category').value.trim() || 'My custom cards';
+
+    if (!front){ showFormMsg('Please enter a topic for the front of the card.', 'error'); return; }
+    if (!sys){ showFormMsg('Please pick a system.', 'error'); return; }
+
+    var back = [];
+    if (type === 'row'){
+      var rows = document.querySelectorAll('#user-back-pairs .back-pair-row');
+      rows.forEach(function(r){
+        var label = r.querySelector('[data-pair-label]').value.trim();
+        var value = r.querySelector('[data-pair-value]').value.trim();
+        if (label && value){ back.push([label, value]); }
+      });
+      if (back.length === 0){
+        showFormMsg('Add at least one label/value pair, with both fields filled in.', 'error');
+        return;
+      }
+    } else if (type === 'pathog'){
+      var ans = document.getElementById('user-pathog-answer').value.trim();
+      if (!ans){ showFormMsg('Please enter the answer for the back of the card.', 'error'); return; }
+      back.push(['Diagnosis', ans]);
+    }
+
+    var card = {
+      id: genUserCardId(),
+      sys: sys,
+      cat: cat,
+      type: type,
+      front: front,
+      back: back,
+      user: true,
+      createdAt: Date.now()
+    };
+    userCards.push(card);
+    saveUserCards();
+    showFormMsg('Card added. It will appear in your next study session.', 'success');
+    clearForm();
+    renderMyCards();
+  }
+
   // ========== UTILITIES ==========
   function escapeHtml(s){
     if (s == null) return '';
@@ -1457,13 +1804,16 @@ window.COURSE_CARDS = [
   document.getElementById('btn-reset').addEventListener('click', function(){
     confirmAction(
       'Reset all progress?',
-      'This erases review history, schedules, streak, name, and session ID. Card data is unaffected. There is no undo.',
+      'This erases review history, schedules, streak, name, session ID, and any cards you added yourself. Course cards are unaffected. There is no undo.',
       function(){
         progress = {}; history = {}; studentName = ''; sessionId = generateSessionId();
+        userCards = [];
         localStorage.removeItem(SK.progress);
         localStorage.removeItem(SK.history);
         localStorage.removeItem(SK.studentName);
+        localStorage.removeItem(SK.userCards);
         saveString(SK.sessionId, sessionId);
+        rebuildDeck();
         renderDashboard();
         showView('dashboard');
       }
@@ -1475,6 +1825,20 @@ window.COURSE_CARDS = [
     showView('report');
     setTimeout(function(){ window.print(); }, 100);
   });
+
+  // ========== MY CARDS BINDINGS ==========
+  document.querySelectorAll('input[name="user-type"]').forEach(function(r){
+    r.addEventListener('change', syncFormMode);
+  });
+  document.getElementById('btn-add-pair').addEventListener('click', addBackPair);
+  document.querySelectorAll('#user-back-pairs .back-pair-remove').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btn.closest('.back-pair-row').remove();
+      updateAddPairButtonState();
+    });
+  });
+  document.getElementById('btn-save-card').addEventListener('click', saveNewCard);
+  document.getElementById('btn-clear-form').addEventListener('click', clearForm);
 
   // ========== WELCOME MODAL (first visit) ==========
   function showWelcomeIfNeeded(){
