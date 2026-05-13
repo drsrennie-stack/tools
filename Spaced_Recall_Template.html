@@ -322,9 +322,52 @@ img,svg{display:block;}
 .modal p{font-size:14px;color:var(--ink-muted);margin:0 0 18px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;}
 
+/* ===== Welcome modal (first-visit) ===== */
+.welcome-backdrop{
+  position:fixed;inset:0;background:rgba(10,19,34,.55);
+  display:none;align-items:center;justify-content:center;z-index:200;padding:20px;
+  overflow-y:auto;
+}
+.welcome-backdrop.open{display:flex;}
+.welcome-modal{
+  background:#fff;border-radius:4px;padding:32px 30px;max-width:560px;width:100%;
+  box-shadow:var(--shadow-lift);border-top:4px solid var(--terra);
+  max-height:calc(100vh - 40px);overflow-y:auto;
+}
+.welcome-modal h2{
+  font-family:var(--font-display);font-weight:800;font-size:24px;
+  color:var(--navy);margin:0 0 8px;letter-spacing:-.01em;
+}
+.welcome-modal .welcome-intro{
+  font-size:14px;color:var(--ink-muted);margin:0 0 20px;
+}
+.welcome-points{display:flex;flex-direction:column;gap:14px;margin-bottom:24px;}
+.welcome-point{
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;
+  padding:14px 16px;box-shadow:var(--shadow-card);
+  display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start;
+}
+.welcome-point-num{
+  font-family:var(--font-display);font-weight:800;font-size:18px;
+  color:#fff;background:var(--navy);border-radius:99px;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.welcome-point-num.terra{background:var(--terra);}
+.welcome-point-num.gold{background:var(--gold);color:var(--gold-text);}
+.welcome-point h3{
+  font-family:var(--font-display);font-weight:700;font-size:15px;
+  color:var(--navy);margin:0 0 4px;
+}
+.welcome-point p{
+  font-size:13px;color:var(--ink-soft);margin:0;line-height:1.55;
+}
+.welcome-actions{display:flex;justify-content:flex-end;}
+.welcome-modal .btn-primary{padding:14px 28px;font-size:15px;}
+
 /* ===== Print styles for Reports ===== */
 @media print {
-  .topnav, .footer, .report-controls, .nav-btn, .btn-primary, .btn-secondary, .modal-backdrop { display:none !important; }
+  .topnav, .footer, .report-controls, .nav-btn, .btn-primary, .btn-secondary, .modal-backdrop, .welcome-backdrop { display:none !important; }
   body { background:#fff; color:#000; font-size:11pt; }
   .view { display:none !important; padding:0; max-width:none; }
   #view-report.active { display:block !important; }
@@ -575,6 +618,43 @@ html,body{overflow-x:hidden;}
   </div>
 </div>
 
+<div class="welcome-backdrop" id="welcome-backdrop">
+  <div class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <h2 id="welcome-title">Before you start</h2>
+    <p class="welcome-intro">A quick note about how this study tool works. You'll only see this once.</p>
+
+    <div class="welcome-points">
+      <div class="welcome-point">
+        <div class="welcome-point-num">1</div>
+        <div>
+          <h3>Your progress lives in this browser, on this device</h3>
+          <p>As long as you keep using the <strong>same device</strong> and the <strong>same browser</strong> (this Chrome, this Safari, this Firefox), your cards, schedule, name, and session ID will all stay put. Bookmark this page so you can come back easily.</p>
+        </div>
+      </div>
+
+      <div class="welcome-point">
+        <div class="welcome-point-num terra">2</div>
+        <div>
+          <h3>Switching devices or browsers starts you over</h3>
+          <p>If you open this on a different device, a different browser, or in private/incognito mode, you will start fresh from zero. There is no cloud account behind this tool. To keep your streak and progress, use the same device and same browser every time.</p>
+        </div>
+      </div>
+
+      <div class="welcome-point">
+        <div class="welcome-point-num gold">3</div>
+        <div>
+          <h3>Print your report regularly as backup</h3>
+          <p>Every week or two, visit the Report tab and click "Print / Save as PDF." Keep the file or paper copy. If your browser ever clears its data (cleared cache, computer wiped, browser uninstalled), your printed reports are the only proof of your work that will remain.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-actions">
+      <button class="btn-primary" id="btn-welcome-ack" type="button">Got it, let's start</button>
+    </div>
+  </div>
+</div>
+
 <footer class="footer">
   <span id="footer-byline">Spaced Recall Template &middot; Dr. Sharilyn Rennie</span>
 </footer>
@@ -767,6 +847,7 @@ window.COURSE_CARDS = [
     settings:    PREFIX + 'settings',
     studentName: PREFIX + 'student_name',
     sessionId:   PREFIX + 'session_id',
+    welcomeAck:  PREFIX + 'welcome_ack',
   };
 
   function load(key, fallback){
@@ -1395,8 +1476,29 @@ window.COURSE_CARDS = [
     setTimeout(function(){ window.print(); }, 100);
   });
 
+  // ========== WELCOME MODAL (first visit) ==========
+  function showWelcomeIfNeeded(){
+    var ack = loadString(SK.welcomeAck, '');
+    if (ack === '1') return;
+    var backdrop = document.getElementById('welcome-backdrop');
+    backdrop.classList.add('open');
+    // Focus the acknowledge button so keyboard users can dismiss with Enter
+    setTimeout(function(){
+      var btn = document.getElementById('btn-welcome-ack');
+      if (btn) btn.focus();
+    }, 50);
+    iframeHeight();
+  }
+  function dismissWelcome(){
+    document.getElementById('welcome-backdrop').classList.remove('open');
+    saveString(SK.welcomeAck, '1');
+    iframeHeight();
+  }
+  document.getElementById('btn-welcome-ack').addEventListener('click', dismissWelcome);
+
   // Initial render
   renderDashboard();
+  showWelcomeIfNeeded();
 
 })();
 </script>
