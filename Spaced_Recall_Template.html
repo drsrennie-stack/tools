@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Spaced Recall &middot; Template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+
+<!--
+===============================================================================
+  SPACED RECALL TEMPLATE
+  Built for: Dr. Sharilyn Rennie
+  Purpose: Drop-in template to add a spaced-recall study tool to any course.
+===============================================================================
+
+  HOW TO CUSTOMIZE THIS FILE (3 steps)
+  ====================================
+
+  STEP 1 - Edit the CONFIG block in the <script id="course-config"> tag below.
+           Set the course title, subject, instructor, systems/units list, and
+           the storage prefix (must be unique per course, e.g. "srep_anp_v1_").
+
+  STEP 2 - Replace the sample CARDS array with your course's cards. Each card
+           has this shape:
+             {
+               id:    "c0001",                 // unique short id
+               sys:   "skeletal",              // one of your systems' keys
+               cat:   "Bones and landmarks",   // category label, free text
+               type:  "row",                   // "row" | "pathog" | "mnem"
+               front: "Femur",                 // the topic / prompt headline
+               back:  [
+                 ["Location",    "Thigh, longest bone in body"],
+                 ["Key landmark","Greater and lesser trochanters; linea aspera"]
+               ]
+             }
+           The "back" array is a list of [label, value] pairs that ALSO act as
+           the "you need to recall" prompt on the card front. So write the
+           labels as the dimensions you want students to retrieve.
+
+           Card types:
+             "row"    - comparison / multi-dimension recall (most common)
+             "pathog" - "see X, think Y" pattern recognition cards
+             "mnem"   - mnemonic with breakdown
+
+  STEP 3 - Save the file and embed or upload to your platform.
+
+  STUDENT REPORTS (for proof of work)
+  ===================================
+  - When a student opens the page they enter their name (saves to their browser).
+  - A unique Session ID is generated and saved to their browser.
+  - The Reports tab shows a printable daily activity log.
+  - Students can print or save-as-PDF and submit as proof of work.
+  - Data lives ONLY in the student's browser localStorage. Nothing is uploaded.
+
+  DESIGN RULES (do not violate)
+  =============================
+  - No em dashes anywhere
+  - No italics anywhere (forced off)
+  - No purple, no green for state indicators
+  - Squared 4px corners on cards/buttons; pill 99px on metadata badges
+  - Lifted card pattern for callouts (white bg + soft gray border + shadow)
+  - target="_top" on internal links if embedded in iframe
+===============================================================================
+-->
+
+<style>
+:root{
+  --navy:#0A1322;--navy-mid:#1F2D44;--ink-soft:#14202F;--ink-muted:#3D4860;--slate:#334155;
+  --terra:#C25A3E;--terra-text:#7A2F18;--terra-bright:#E59575;
+  --gold:#D4A24C;--gold-text:#6E5018;--gold-bright:#E5B45C;
+  --teal-text:#2C5F66;--teal-bright:#5B9AA0;
+  --plum-text:#5C2A66;
+  --rule:#B8BEC8;--rule-soft:#DCE0E6;--rule-faint:#E8EBEF;
+  --bg:#ffffff;--bg-soft:#fafaf9;--surface:#ffffff;
+  --terra-pale:rgba(194,90,62,.07);
+  --teal-pale:rgba(44,95,102,.08);
+  --gold-pale:rgba(212,162,76,.10);
+  --navy-pale:rgba(10,19,34,.04);
+  --plum-pale:rgba(92,42,102,.07);
+  --shadow-card:0 1px 3px rgba(10,19,34,.08), 0 1px 2px rgba(10,19,34,.05);
+  --shadow-lift:0 6px 16px rgba(10,19,34,.10), 0 3px 6px rgba(10,19,34,.06);
+  --font-display:'Plus Jakarta Sans',sans-serif;
+  --font-body:'Atkinson Hyperlegible','Plus Jakarta Sans',sans-serif;
+}
+
+*{box-sizing:border-box;font-style:normal !important;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink-soft);font-family:var(--font-body);line-height:1.5;}
+a{color:var(--navy);}
+button{font-family:var(--font-display);font-style:normal;}
+img,svg{display:block;}
+
+.skip-link{position:absolute;left:-9999px;}
+.skip-link:focus{left:8px;top:8px;background:var(--navy);color:#fff;padding:8px 12px;z-index:9999;border-radius:4px;}
+
+/* ===== Header / nav ===== */
+.topnav{
+  display:flex;align-items:center;gap:14px;padding:14px 22px;
+  background:#fff;border-bottom:1px solid var(--rule-faint);
+  position:sticky;top:0;z-index:30;flex-wrap:wrap;
+}
+.brand-logo{font-family:var(--font-display);font-weight:800;color:var(--navy);text-decoration:none;font-size:18px;letter-spacing:-.01em;}
+.brand-logo span{color:var(--terra);}
+.nav-tag{font-family:var(--font-display);font-size:12px;color:var(--ink-muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.nav-spacer{flex:1;}
+.nav-btn{
+  font-family:var(--font-display);font-weight:600;font-size:14px;
+  padding:8px 14px;background:#fff;color:var(--navy);
+  border:1px solid var(--rule-soft);border-radius:4px;cursor:pointer;
+  transition:background 120ms,border-color 120ms;
+}
+.nav-btn:hover{border-color:var(--navy);}
+.nav-btn:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
+.nav-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.nav-btn.small{padding:6px 10px;font-size:13px;}
+
+/* ===== Layout / views ===== */
+.view{display:none;padding:32px 22px 80px;max-width:1100px;margin:0 auto;}
+.view.active{display:block;}
+
+/* ===== Hero ===== */
+.hero{margin-bottom:28px;}
+.hero h1{font-family:var(--font-display);font-weight:800;font-size:32px;letter-spacing:-.02em;margin:0 0 8px;color:var(--navy);}
+.hero p{font-size:15px;color:var(--ink-muted);max-width:680px;margin:0 0 14px;}
+
+/* ===== Stat cards ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:16px;box-shadow:var(--shadow-card);}
+.stat-num{font-family:var(--font-display);font-weight:800;font-size:32px;color:var(--navy);line-height:1;letter-spacing:-.02em;}
+.stat-label{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--terra-text);margin-top:8px;}
+.stat-sub{font-size:12px;color:var(--ink-muted);margin-top:4px;}
+
+/* ===== CTA ===== */
+.cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;}
+.btn-primary{
+  font-family:var(--font-display);font-weight:700;font-size:15px;
+  padding:12px 22px;background:var(--navy);color:#fff;border:0;border-radius:4px;cursor:pointer;
+  transition:background 120ms;
+}
+.btn-primary:hover{background:var(--navy-mid);}
+.btn-primary:disabled{background:var(--rule);cursor:not-allowed;}
+.btn-secondary{
+  font-family:var(--font-display);font-weight:600;font-size:14px;
+  padding:11px 18px;background:#fff;color:var(--navy);border:1px solid var(--rule-soft);border-radius:4px;cursor:pointer;
+}
+.btn-secondary:hover{border-color:var(--navy);}
+
+/* ===== Panels ===== */
+.panel{background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:20px;box-shadow:var(--shadow-card);margin-bottom:20px;}
+.panel h2{font-family:var(--font-display);font-weight:700;font-size:18px;margin:0 0 12px;color:var(--navy);letter-spacing:-.01em;}
+.panel p{font-size:14px;color:var(--ink-muted);margin:0 0 10px;}
+
+/* ===== Form fields ===== */
+.field{margin-bottom:14px;}
+.field-label{display:block;font-family:var(--font-display);font-weight:600;font-size:13px;color:var(--navy);margin-bottom:4px;}
+.field-input{
+  width:100%;font-family:var(--font-body);font-size:15px;
+  padding:10px 12px;border:1px solid var(--rule-soft);border-radius:4px;background:#fff;color:var(--ink-soft);
+}
+.field-input:focus{outline:2px solid var(--navy);outline-offset:0;border-color:var(--navy);}
+.field-help{font-size:12px;color:var(--ink-muted);margin-top:4px;}
+
+/* ===== Identity strip on dashboard ===== */
+.id-strip{
+  display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:16px 18px;
+  box-shadow:var(--shadow-card);margin-bottom:20px;
+}
+.id-strip .field{flex:1;min-width:220px;margin-bottom:0;}
+.id-strip .session-box{
+  font-family:var(--font-display);font-size:12px;color:var(--ink-muted);
+}
+.id-strip .session-id{
+  display:block;font-family:'Courier New',monospace;font-weight:700;font-size:14px;color:var(--navy);
+  letter-spacing:.06em;margin-top:2px;
+}
+
+/* ===== System breakdown ===== */
+.sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.sys-card{background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:12px 14px;}
+.sys-name{font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--navy);margin-bottom:6px;}
+.sys-meta{font-size:12px;color:var(--ink-muted);}
+.sys-bar{height:6px;background:var(--rule-faint);border-radius:99px;overflow:hidden;margin-top:8px;}
+.sys-bar-fill{height:100%;background:var(--navy);transition:width 200ms;}
+.sys-bar-fill.has-due{background:var(--terra);}
+
+/* ===== Study view ===== */
+.study-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.study-progress{flex:1;height:6px;background:var(--rule-faint);border-radius:99px;overflow:hidden;min-width:200px;}
+.study-progress-fill{height:100%;background:var(--navy);transition:width 300ms;}
+.study-count{font-family:var(--font-display);font-weight:600;font-size:13px;color:var(--ink-muted);white-space:nowrap;}
+
+.card-stage{
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;
+  padding:32px 28px;box-shadow:var(--shadow-lift);min-height:300px;
+  display:flex;flex-direction:column;
+}
+.card-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pill{
+  font-family:var(--font-display);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;
+  padding:4px 10px;background:var(--navy-pale);color:var(--navy);border-radius:99px;
+}
+.pill.terra{background:var(--terra-pale);color:var(--terra-text);}
+.pill.gold{background:var(--gold-pale);color:var(--gold-text);}
+.pill.teal{background:var(--teal-pale);color:var(--teal-text);}
+
+.card-front-headline{font-family:var(--font-display);font-weight:800;font-size:28px;color:var(--navy);letter-spacing:-.01em;margin:8px 0 18px;line-height:1.2;}
+
+/* Recall prompt (lifted-card pattern, per rule #20) */
+.recall-prompt{
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;
+  padding:14px 16px;box-shadow:var(--shadow-card);margin-bottom:20px;
+}
+.recall-label{font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--terra-text);margin-bottom:6px;}
+.recall-list{margin:0;padding-left:18px;}
+.recall-list li{font-size:14px;color:var(--navy);margin-bottom:3px;}
+.recall-list li::marker{color:var(--terra);}
+.recall-line{font-size:14px;color:var(--navy);}
+
+.reveal-btn{
+  font-family:var(--font-display);font-weight:700;font-size:15px;
+  padding:12px 22px;background:var(--navy);color:#fff;border:0;border-radius:4px;cursor:pointer;
+  align-self:flex-start;margin-top:auto;
+}
+.reveal-btn:hover{background:var(--navy-mid);}
+
+.card-back{margin-top:18px;}
+.back-row{
+  display:grid;grid-template-columns:180px 1fr;gap:14px;
+  padding:10px 0;border-bottom:1px solid var(--rule-faint);
+}
+.back-row:last-child{border-bottom:0;}
+.back-label{font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--terra-text);}
+.back-value{font-size:14px;color:var(--navy);}
+
+.rate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px;}
+.rate-btn{
+  font-family:var(--font-display);font-weight:700;font-size:13px;
+  padding:14px 8px;background:#fff;border:1px solid var(--rule-soft);border-radius:4px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  transition:border-color 120ms,background 120ms;
+}
+.rate-btn:hover{border-color:var(--navy);background:var(--bg-soft);}
+.rate-btn:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+.rate-btn .rate-name{font-size:14px;letter-spacing:.02em;}
+.rate-btn .rate-interval{font-size:11px;color:var(--ink-muted);font-weight:600;}
+.rate-btn.again .rate-name{color:var(--terra-text);}
+.rate-btn.hard  .rate-name{color:var(--gold-text);}
+.rate-btn.good  .rate-name{color:var(--navy);}
+.rate-btn.easy  .rate-name{color:var(--teal-text);}
+
+.kbd-hints{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:16px;font-size:12px;color:var(--ink-muted);}
+.kbd-hints kbd{
+  font-family:'Courier New',monospace;font-size:11px;font-weight:700;
+  padding:2px 6px;background:var(--bg-soft);border:1px solid var(--rule-soft);border-radius:3px;color:var(--navy);margin-right:4px;
+}
+
+/* ===== Settings ===== */
+.setting-row{display:grid;grid-template-columns:1fr auto;gap:18px;padding:16px 0;border-bottom:1px solid var(--rule-faint);align-items:start;}
+.setting-row:last-child{border-bottom:0;}
+.setting-label{font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--navy);margin-bottom:2px;}
+.setting-desc{font-size:13px;color:var(--ink-muted);max-width:560px;}
+.setting-control{display:flex;gap:8px;align-items:center;}
+.checkbox-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px;}
+.checkbox-row{display:flex;align-items:center;gap:8px;font-size:14px;}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;}
+
+/* ===== Reports view ===== */
+.report-header{
+  display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:18px;
+  padding-bottom:18px;margin-bottom:18px;border-bottom:2px solid var(--navy);
+}
+.report-title{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--navy);margin:0 0 4px;letter-spacing:-.01em;}
+.report-meta{font-size:13px;color:var(--ink-muted);line-height:1.7;}
+.report-meta strong{color:var(--navy);font-weight:700;}
+
+.report-summary{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px;
+}
+.report-stat{
+  background:#fff;border:1px solid var(--rule-soft);border-radius:4px;padding:12px 14px;box-shadow:var(--shadow-card);
+}
+.report-stat .num{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--navy);line-height:1;}
+.report-stat .lbl{font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--terra-text);margin-top:6px;}
+
+.report-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px;}
+.report-table th{
+  font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  text-align:left;padding:10px 12px;color:var(--navy);border-bottom:2px solid var(--navy);background:#fff;
+}
+.report-table td{padding:10px 12px;border-bottom:1px solid var(--rule-faint);color:var(--ink-soft);vertical-align:middle;}
+.report-table td.num{font-family:var(--font-display);font-weight:600;color:var(--navy);}
+.report-table .accuracy-bar{
+  display:inline-block;width:60px;height:6px;background:var(--rule-faint);border-radius:99px;overflow:hidden;vertical-align:middle;margin-right:8px;
+}
+.report-table .accuracy-fill{height:100%;background:var(--navy);}
+.report-table tr:hover td{background:var(--bg-soft);}
+.report-empty{font-size:14px;color:var(--ink-muted);font-style:normal;padding:24px;text-align:center;}
+
+.report-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+.report-controls select{
+  font-family:var(--font-body);font-size:14px;
+  padding:8px 10px;border:1px solid var(--rule-soft);border-radius:4px;background:#fff;color:var(--navy);
+}
+.report-signature{
+  margin-top:36px;padding-top:18px;border-top:1px solid var(--rule-soft);
+  font-size:12px;color:var(--ink-muted);
+}
+.report-signature .sig-line{
+  display:inline-block;border-bottom:1px solid var(--navy);min-width:240px;height:22px;margin-left:8px;vertical-align:bottom;
+}
+
+/* ===== Footer ===== */
+.footer{padding:24px 22px;border-top:1px solid var(--rule-faint);text-align:center;font-size:12px;color:var(--ink-muted);max-width:1100px;margin:0 auto;}
+
+/* ===== Confirm dialog ===== */
+.modal-backdrop{position:fixed;inset:0;background:rgba(10,19,34,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-backdrop.open{display:flex;}
+.modal{background:#fff;border-radius:4px;padding:24px;max-width:440px;width:100%;box-shadow:var(--shadow-lift);}
+.modal h3{font-family:var(--font-display);font-weight:700;font-size:18px;margin:0 0 10px;color:var(--navy);}
+.modal p{font-size:14px;color:var(--ink-muted);margin:0 0 18px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+/* ===== Print styles for Reports ===== */
+@media print {
+  .topnav, .footer, .report-controls, .nav-btn, .btn-primary, .btn-secondary, .modal-backdrop { display:none !important; }
+  body { background:#fff; color:#000; font-size:11pt; }
+  .view { display:none !important; padding:0; max-width:none; }
+  #view-report.active { display:block !important; }
+  .panel, .report-stat { box-shadow:none; border-color:#999; }
+  .report-table th, .report-table td { border-color:#999; }
+  .report-header { border-bottom-color:#000; }
+  @page { margin: 0.6in; }
+}
+
+/* ===== Embed friendliness ===== */
+html,body{overflow-x:hidden;}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<nav class="topnav">
+  <a class="brand-logo" href="#" target="_top">Spaced<span>Recall</span></a>
+  <span class="nav-tag" id="course-tag">Template</span>
+  <span class="nav-spacer"></span>
+  <button class="nav-btn active" data-view="dashboard" type="button">Dashboard</button>
+  <button class="nav-btn" data-view="report" type="button">Report</button>
+  <button class="nav-btn" data-view="settings" type="button">Settings</button>
+</nav>
+
+<main id="main">
+
+<!-- ============= DASHBOARD VIEW ============= -->
+<section id="view-dashboard" class="view active" aria-label="Dashboard">
+  <header class="hero">
+    <div class="nav-tag" id="course-eyebrow" style="color:var(--terra-text);">Course</div>
+    <h1>Today's <span style="color:var(--terra);">Review Queue</span></h1>
+    <p id="hero-intro">Spaced recall, built around active retrieval. Each card shows a topic with a directive about what to recall. Predict the answer out loud or on paper, then reveal and rate how cleanly you recalled it. Recall, not re-reading, is what builds durable memory.</p>
+  </header>
+
+  <div class="id-strip" id="id-strip">
+    <div class="field" style="margin-bottom:0;">
+      <label class="field-label" for="student-name">Your name</label>
+      <input class="field-input" id="student-name" type="text" placeholder="First Last" autocomplete="name">
+      <div class="field-help">Saved to your browser only. Appears on your printable report.</div>
+    </div>
+    <div class="session-box">
+      Session ID
+      <span class="session-id" id="session-id">--</span>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-due">0</div>
+      <div class="stat-label">Due today</div>
+      <div class="stat-sub">Cards scheduled for review</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-new">0</div>
+      <div class="stat-label">New available</div>
+      <div class="stat-sub">From your daily budget</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num"><span id="stat-seen">0</span> / <span id="stat-deck-total">0</span></div>
+      <div class="stat-label">Cards seen</div>
+      <div class="stat-sub">Out of total in deck</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-streak">0</div>
+      <div class="stat-label">Day streak</div>
+      <div class="stat-sub">Consecutive days with reviews</div>
+    </div>
+  </div>
+
+  <div class="cta-row">
+    <button class="btn-primary" id="btn-start-session" type="button">Start session</button>
+    <button class="btn-secondary" id="btn-extra-practice" type="button">Extra practice (30 random)</button>
+  </div>
+
+  <div class="panel">
+    <h2>Subject breakdown</h2>
+    <p>Each bar shows how much of the system you've already seen. Terra fill means cards from that system are due now.</p>
+    <div class="sys-grid" id="sys-grid"></div>
+  </div>
+</section>
+
+<!-- ============= STUDY VIEW ============= -->
+<section id="view-study" class="view" aria-label="Study session">
+  <div class="study-bar">
+    <div class="study-progress"><div class="study-progress-fill" id="study-progress-fill" style="width:0%"></div></div>
+    <div class="study-count" id="study-count">0 of 0</div>
+    <button class="nav-btn small" id="btn-end-session" type="button">End session</button>
+  </div>
+
+  <div class="card-stage" id="card-stage">
+    <div class="card-pills" id="card-pills"></div>
+    <div class="card-front-headline" id="card-front"></div>
+    <div id="recall-prompt-wrap"></div>
+    <div id="card-back-wrap" style="display:none;"></div>
+    <button class="reveal-btn" id="btn-reveal" type="button">Show answer</button>
+    <div class="rate-grid" id="rate-grid" style="display:none;">
+      <button class="rate-btn again" data-rate="again" type="button"><span class="rate-name">Again</span><span class="rate-interval" data-interval="again">--</span></button>
+      <button class="rate-btn hard"  data-rate="hard"  type="button"><span class="rate-name">Hard</span> <span class="rate-interval" data-interval="hard">--</span></button>
+      <button class="rate-btn good"  data-rate="good"  type="button"><span class="rate-name">Good</span> <span class="rate-interval" data-interval="good">--</span></button>
+      <button class="rate-btn easy"  data-rate="easy"  type="button"><span class="rate-name">Easy</span> <span class="rate-interval" data-interval="easy">--</span></button>
+    </div>
+    <div class="kbd-hints">
+      <span><kbd>Space</kbd>reveal</span>
+      <span><kbd>1</kbd>again</span>
+      <span><kbd>2</kbd>hard</span>
+      <span><kbd>3</kbd>good</span>
+      <span><kbd>4</kbd>easy</span>
+      <span><kbd>Esc</kbd>end session</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============= REPORT VIEW ============= -->
+<section id="view-report" class="view" aria-label="Activity report">
+  <div class="report-controls" id="report-controls">
+    <label class="field-label" for="report-range" style="margin-bottom:0;">Date range:</label>
+    <select id="report-range">
+      <option value="7">Last 7 days</option>
+      <option value="14">Last 14 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="all">All time</option>
+    </select>
+    <button class="btn-primary" id="btn-print-report" type="button">Print / Save as PDF</button>
+  </div>
+
+  <div class="panel" id="report-panel">
+    <div class="report-header">
+      <div>
+        <h2 class="report-title" id="report-course-title">Spaced Recall Activity Report</h2>
+        <div class="report-meta">
+          <strong>Student:</strong> <span id="report-student">(name not entered)</span><br>
+          <strong>Course:</strong> <span id="report-course">Template</span><br>
+          <strong>Instructor:</strong> <span id="report-instructor">--</span><br>
+          <strong>Generated:</strong> <span id="report-generated">--</span>
+        </div>
+      </div>
+      <div class="report-meta" style="text-align:right;">
+        <strong>Session ID:</strong> <span id="report-session" style="font-family:'Courier New',monospace;">--</span><br>
+        <strong>Range:</strong> <span id="report-range-label">Last 30 days</span>
+      </div>
+    </div>
+
+    <div class="report-summary">
+      <div class="report-stat"><div class="num" id="report-days">0</div><div class="lbl">Active days</div></div>
+      <div class="report-stat"><div class="num" id="report-total">0</div><div class="lbl">Cards reviewed</div></div>
+      <div class="report-stat"><div class="num" id="report-new-total">0</div><div class="lbl">New cards learned</div></div>
+      <div class="report-stat"><div class="num" id="report-accuracy">--</div><div class="lbl">Overall accuracy</div></div>
+      <div class="report-stat"><div class="num" id="report-streak">0</div><div class="lbl">Current streak</div></div>
+    </div>
+
+    <table class="report-table" id="report-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Day</th>
+          <th>Reviewed</th>
+          <th>New</th>
+          <th>Again</th>
+          <th>Hard</th>
+          <th>Good</th>
+          <th>Easy</th>
+          <th>Accuracy</th>
+        </tr>
+      </thead>
+      <tbody id="report-tbody"></tbody>
+    </table>
+
+    <div class="report-signature">
+      <span>Student signature:</span><span class="sig-line"></span>
+      <span style="margin-left:24px;">Date:</span><span class="sig-line" style="min-width:120px;"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============= SETTINGS VIEW ============= -->
+<section id="view-settings" class="view" aria-label="Settings">
+  <header class="hero">
+    <h1>Settings</h1>
+    <p>Tune the daily workload, control which systems and card types are active, and manage your data. Changes save automatically.</p>
+  </header>
+
+  <div class="panel">
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">New cards per day</div>
+        <div class="setting-desc">A budget for first-time encounters. Lower for steady pace; higher to ramp up before a deadline.</div>
+      </div>
+      <div class="setting-control">
+        <input type="range" id="set-new-per-day" min="5" max="60" step="5">
+        <span id="set-new-per-day-val" style="min-width:32px;text-align:right;font-family:var(--font-display);font-weight:700;color:var(--navy);"></span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Maximum reviews per day</div>
+        <div class="setting-desc">Ceiling on due cards per session. Prevents backlogs from creating unmanageable sessions.</div>
+      </div>
+      <div class="setting-control">
+        <input type="range" id="set-max-reviews" min="25" max="300" step="25">
+        <span id="set-max-reviews-val" style="min-width:32px;text-align:right;font-family:var(--font-display);font-weight:700;color:var(--navy);"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Active systems / units</h2>
+    <p>Toggle which areas are in your study rotation.</p>
+    <div class="checkbox-grid" id="set-systems"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Active card types</h2>
+    <p>Some students prefer to filter out mnemonics or focus only on pattern-recognition cards.</p>
+    <div class="checkbox-grid" id="set-types">
+      <label class="checkbox-row"><input type="checkbox" data-type="row"> Comparison / multi-dimension</label>
+      <label class="checkbox-row"><input type="checkbox" data-type="pathog"> Pattern recognition</label>
+      <label class="checkbox-row"><input type="checkbox" data-type="mnem"> Mnemonics</label>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Data</h2>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Reset progress</div>
+        <div class="setting-desc">Erases review history, schedules, streak, and name/session info. Card data itself is unaffected. There is no undo.</div>
+      </div>
+      <div class="setting-control">
+        <button class="btn-secondary" id="btn-reset" type="button">Reset progress</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h3 id="modal-title">Confirm</h3>
+    <p id="modal-body">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="nav-btn" id="modal-cancel" type="button">Cancel</button>
+      <button class="btn-primary" id="modal-confirm" type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <span id="footer-byline">Spaced Recall Template &middot; Dr. Sharilyn Rennie</span>
+</footer>
+
+<!-- ============= COURSE CONFIG ============= -->
+<!-- EDIT THIS BLOCK to customize for your course. -->
+<script id="course-config">
+window.COURSE_CONFIG = {
+  // Course identity (appears in title bar, nav, hero, and reports)
+  courseTitle:    "Spaced Recall Template",
+  courseShort:    "Template",
+  courseEyebrow:  "Course",                   // small label above hero h1
+  instructor:     "Dr. Sharilyn Rennie",
+  heroIntro:      "Spaced recall, built around active retrieval. Each card shows a topic with a directive about what to recall. Predict the answer out loud or on paper, then reveal and rate how cleanly you recalled it. Recall, not re-reading, is what builds durable memory.",
+
+  // Storage prefix - MUST BE UNIQUE PER COURSE.
+  // Example values: "srep_anp_v1_", "srep_chem101_v1_", "srep_biochem_v1_"
+  storagePrefix:  "srep_template_v1_",
+
+  // Systems / units. Each entry: { key, name, weight (optional) }
+  // The "key" is short, lowercase, and appears in card.sys.
+  // The "name" is the display name. "weight" is an optional percent or count.
+  systems: [
+    { key: "skeletal",    name: "Skeletal system",    weight: "10%" },
+    { key: "muscular",    name: "Muscular system",    weight: "10%" },
+    { key: "nervous",     name: "Nervous system",     weight: "15%" },
+    { key: "cardiovascular", name: "Cardiovascular",  weight: "12%" },
+    { key: "respiratory", name: "Respiratory",        weight: "10%" },
+    { key: "digestive",   name: "Digestive",          weight: "10%" },
+    { key: "urinary",     name: "Urinary",            weight: "8%"  },
+    { key: "endocrine",   name: "Endocrine",          weight: "10%" },
+    { key: "reproductive",name: "Reproductive",       weight: "8%"  },
+    { key: "integumentary",name:"Integumentary",      weight: "7%"  },
+  ],
+};
+
+// ============= COURSE CARDS =============
+// Replace this array with your own. See header comment for shape.
+// The samples below are illustrative; they show all three card types.
+window.COURSE_CARDS = [
+  {
+    id: "c0001", sys: "skeletal", cat: "Bones and landmarks", type: "row",
+    front: "Femur",
+    back: [
+      ["Location",      "Thigh, longest and strongest bone"],
+      ["Key landmark",  "Greater and lesser trochanters; linea aspera on posterior shaft"],
+      ["Articulation",  "Acetabulum (proximal); tibia and patella (distal)"]
+    ]
+  },
+  {
+    id: "c0002", sys: "skeletal", cat: "Bones and landmarks", type: "row",
+    front: "Scapula",
+    back: [
+      ["Location",      "Posterior thorax, ribs 2 to 7"],
+      ["Key landmark",  "Acromion process, coracoid process, glenoid cavity, spine"],
+      ["Articulation",  "Humerus at glenohumeral joint; clavicle at AC joint"]
+    ]
+  },
+  {
+    id: "c0003", sys: "muscular", cat: "Muscle physiology", type: "row",
+    front: "Sarcomere",
+    back: [
+      ["Boundaries",    "Z-line to Z-line"],
+      ["Bands",         "A band (full myosin), I band (actin only), H zone (myosin only)"],
+      ["During contraction", "I band and H zone shorten; A band stays the same length"]
+    ]
+  },
+  {
+    id: "c0004", sys: "nervous", cat: "Neurons", type: "row",
+    front: "Resting membrane potential",
+    back: [
+      ["Typical value", "About -70 mV in most neurons"],
+      ["Maintained by", "Na+/K+ ATPase pump and K+ leak channels"],
+      ["Why negative",  "More K+ leaks out than Na+ leaks in; intracellular anions trapped"]
+    ]
+  },
+  {
+    id: "c0005", sys: "cardiovascular", cat: "Cardiac cycle", type: "row",
+    front: "Frank-Starling mechanism",
+    back: [
+      ["Definition",   "Increased venous return stretches sarcomeres, increasing force of contraction"],
+      ["Why it matters","Matches cardiac output to venous return without nervous input"],
+      ["Failure mode", "Overstretched fibers (decompensated CHF) lose contractile force"]
+    ]
+  },
+  {
+    id: "c0006", sys: "cardiovascular", cat: "Pathognomonic findings", type: "pathog",
+    front: "Crushing substernal chest pain radiating to left arm",
+    back: [["Diagnosis", "Myocardial infarction (acute coronary syndrome)"]]
+  },
+  {
+    id: "c0007", sys: "respiratory", cat: "Gas exchange", type: "row",
+    front: "Oxygen dissociation curve",
+    back: [
+      ["Shape",         "Sigmoidal (cooperative binding of O2 to hemoglobin)"],
+      ["Right shift",   "Releases more O2 to tissues; high CO2, low pH, high temp, high 2,3-BPG"],
+      ["Left shift",    "Holds O2 more tightly; opposite conditions, also HbF and CO poisoning"]
+    ]
+  },
+  {
+    id: "c0008", sys: "respiratory", cat: "Mnemonics", type: "mnem",
+    front: "CADET, face Right",
+    back: [
+      ["Explanation", "Causes of right shift of the oxygen dissociation curve (more O2 unloaded to tissues)."],
+      ["Breakdown",   "C: CO2 increased; A: Acid (low pH); D: 2,3-DPG increased; E: Exercise; T: Temperature increased"]
+    ]
+  },
+  {
+    id: "c0009", sys: "digestive", cat: "GI hormones", type: "row",
+    front: "Cholecystokinin (CCK)",
+    back: [
+      ["Source",     "I cells of duodenum and jejunum"],
+      ["Triggers",   "Fatty acids and amino acids in duodenum"],
+      ["Function",   "Stimulates pancreatic enzymes and gallbladder contraction; slows gastric emptying"]
+    ]
+  },
+  {
+    id: "c0010", sys: "urinary", cat: "Nephron physiology", type: "row",
+    front: "Proximal convoluted tubule (PCT)",
+    back: [
+      ["Reabsorbs",   "65% of Na+, glucose, amino acids, HCO3-, K+, and water"],
+      ["Mechanism",   "Na+/K+ ATPase on basolateral side drives apical co-transport"],
+      ["Tested",      "Glucose all reabsorbed via SGLT2 until Tm saturates (around 375 mg/min)"]
+    ]
+  },
+  {
+    id: "c0011", sys: "endocrine", cat: "Hormone signaling", type: "row",
+    front: "cAMP second messenger (Gs)",
+    back: [
+      ["Activates",   "Adenylate cyclase, increasing cAMP, activating PKA"],
+      ["Hormones",    "FSH, LH, ACTH, TSH, CRH, hCG, ADH (V2), glucagon, PTH, calcitonin"],
+      ["Mnemonic",    "FLAT ChAMP"]
+    ]
+  },
+  {
+    id: "c0012", sys: "reproductive", cat: "Menstrual cycle", type: "row",
+    front: "LH surge",
+    back: [
+      ["Timing",      "Around day 14 of a 28-day cycle, 24 to 36 hours before ovulation"],
+      ["Trigger",     "Sustained high estrogen switches to positive feedback on pituitary"],
+      ["Effect",      "Triggers ovulation; converts ruptured follicle to corpus luteum"]
+    ]
+  },
+  {
+    id: "c0013", sys: "integumentary", cat: "Skin layers", type: "row",
+    front: "Stratum basale",
+    back: [
+      ["Location",    "Deepest layer of epidermis, attached to basement membrane"],
+      ["Cells",       "Mitotically active keratinocytes, melanocytes, Merkel cells"],
+      ["Clinical",    "Site of basal cell carcinoma origin"]
+    ]
+  },
+  {
+    id: "c0014", sys: "integumentary", cat: "Pathognomonic findings", type: "pathog",
+    front: "Pearly papule with telangiectasias and rolled border on sun-exposed face",
+    back: [["Diagnosis", "Basal cell carcinoma"]]
+  },
+];
+</script>
+
+<!-- ============= ENGINE (do not edit unless you know what you're doing) ============= -->
+<script>
+(function(){
+  'use strict';
+
+  var CFG   = window.COURSE_CONFIG || {};
+  var CARDS = window.COURSE_CARDS  || [];
+
+  // Build SYSTEM_NAMES map: { key: name }
+  var SYSTEM_NAMES = {};
+  (CFG.systems || []).forEach(function(s){ SYSTEM_NAMES[s.key] = s.name; });
+  var SYSTEM_META = {};
+  (CFG.systems || []).forEach(function(s){ SYSTEM_META[s.key] = s; });
+
+  // Apply course identity to UI
+  document.title = CFG.courseTitle + ' \u00b7 Spaced Recall';
+  document.getElementById('course-tag').textContent = CFG.courseShort || 'Template';
+  document.getElementById('course-eyebrow').textContent = CFG.courseEyebrow || 'Course';
+  document.getElementById('hero-intro').textContent = CFG.heroIntro || '';
+  document.getElementById('footer-byline').innerHTML = (CFG.courseTitle || 'Spaced Recall') + ' \u00b7 ' + (CFG.instructor || '');
+  document.getElementById('report-course-title').textContent = (CFG.courseTitle || 'Spaced Recall') + ' \u00b7 Activity Report';
+  document.getElementById('report-course').textContent = CFG.courseTitle || 'Spaced Recall';
+  document.getElementById('report-instructor').textContent = CFG.instructor || '';
+
+  // ========== STORAGE ==========
+  var PREFIX = CFG.storagePrefix || 'srep_template_v1_';
+  var SK = {
+    progress:    PREFIX + 'progress',
+    history:     PREFIX + 'history',
+    settings:    PREFIX + 'settings',
+    studentName: PREFIX + 'student_name',
+    sessionId:   PREFIX + 'session_id',
+  };
+
+  function load(key, fallback){
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function loadString(key, fallback){
+    try { return localStorage.getItem(key) || fallback; } catch(e){ return fallback; }
+  }
+  function save(key, val){
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e){}
+  }
+  function saveString(key, val){
+    try { localStorage.setItem(key, val); } catch(e){}
+  }
+
+  // ========== STATE ==========
+  var CARD_BY_ID = {};
+  CARDS.forEach(function(c){ CARD_BY_ID[c.id] = c; });
+
+  var DEFAULT_SETTINGS = {
+    newPerDay: 20,
+    maxReviews: 100,
+    systems: Object.keys(SYSTEM_NAMES),
+    types: ['row','pathog','mnem']
+  };
+
+  var settings = Object.assign({}, DEFAULT_SETTINGS, load(SK.settings, {}));
+  var progress = load(SK.progress, {});
+  var history  = load(SK.history, {});
+  var studentName = loadString(SK.studentName, '');
+  var sessionId   = loadString(SK.sessionId, '');
+
+  // Generate session ID once per browser if not present
+  if (!sessionId){
+    sessionId = generateSessionId();
+    saveString(SK.sessionId, sessionId);
+  }
+  function generateSessionId(){
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var out = '';
+    for (var i = 0; i < 8; i++){
+      out += chars[Math.floor(Math.random() * chars.length)];
+      if (i === 3) out += '-';
+    }
+    return out;
+  }
+
+  function persist(){
+    save(SK.progress, progress);
+    save(SK.history, history);
+    save(SK.settings, settings);
+  }
+
+  // ========== DATE HELPERS ==========
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function formatDateDisplay(yyyyMmDd){
+    var parts = yyyyMmDd.split('-');
+    var d = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function dayOfWeek(yyyyMmDd){
+    var parts = yyyyMmDd.split('-');
+    var d = new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+    return d.toLocaleDateString(undefined, { weekday: 'short' });
+  }
+  function nowMs(){ return Date.now(); }
+  function addDays(ms, days){ return ms + days * 86400000; }
+
+  // ========== SM-2 ALGORITHM ==========
+  function newCardState(){
+    return { ef: 2.5, interval: 0, reps: 0, lapses: 0, due: 0, last: 0 };
+  }
+  function rate(card, q){
+    var s = progress[card.id] || newCardState();
+    var now = nowMs();
+    s.last = now;
+    if (q === 'again'){
+      s.reps = 0;
+      s.interval = 1;
+      s.lapses = (s.lapses||0) + 1;
+      s.ef = Math.max(1.3, s.ef - 0.20);
+    } else if (q === 'hard'){
+      if (s.reps === 0) s.interval = 1;
+      else s.interval = Math.max(s.interval + 1, Math.round(s.interval * 1.2));
+      s.reps = s.reps + 1;
+      s.ef = Math.max(1.3, s.ef - 0.15);
+    } else if (q === 'good'){
+      if (s.reps === 0) s.interval = 1;
+      else if (s.reps === 1) s.interval = 4;
+      else s.interval = Math.round(s.interval * s.ef);
+      s.reps = s.reps + 1;
+    } else if (q === 'easy'){
+      if (s.reps === 0) s.interval = 4;
+      else s.interval = Math.round(s.interval * s.ef * 1.3);
+      s.reps = s.reps + 1;
+      s.ef = Math.min(2.8, s.ef + 0.10);
+    }
+    s.interval = Math.max(1, Math.min(s.interval, 365));
+    s.due = addDays(now, s.interval);
+    progress[card.id] = s;
+
+    var t = todayStr();
+    if (!history[t]) history[t] = { reviewed:0, again:0, hard:0, good:0, easy:0, "new":0 };
+    history[t].reviewed++;
+    history[t][q]++;
+    if (s.reps === 1 && q !== 'again') history[t]["new"]++;
+    persist();
+  }
+  function predictInterval(card, q){
+    var s = progress[card.id] || newCardState();
+    var n = Object.assign({}, s);
+    if (q === 'again'){ n.interval = 1; }
+    else if (q === 'hard'){
+      if (n.reps === 0) n.interval = 1;
+      else n.interval = Math.max(n.interval + 1, Math.round(n.interval * 1.2));
+    } else if (q === 'good'){
+      if (n.reps === 0) n.interval = 1;
+      else if (n.reps === 1) n.interval = 4;
+      else n.interval = Math.round(n.interval * n.ef);
+    } else if (q === 'easy'){
+      if (n.reps === 0) n.interval = 4;
+      else n.interval = Math.round(n.interval * n.ef * 1.3);
+    }
+    n.interval = Math.max(1, Math.min(n.interval, 365));
+    return formatInterval(n.interval);
+  }
+  function formatInterval(days){
+    if (days < 1) return '<1d';
+    if (days < 30) return days + 'd';
+    if (days < 365) return Math.round(days/30) + 'mo';
+    return Math.round(days/365) + 'yr';
+  }
+
+  // ========== QUEUE BUILDING ==========
+  function isCardFiltered(card){
+    return settings.systems.indexOf(card.sys) !== -1 &&
+           settings.types.indexOf(card.type) !== -1;
+  }
+  function dueCards(){
+    var now = nowMs();
+    var due = [];
+    for (var i=0;i<CARDS.length;i++){
+      var c = CARDS[i];
+      if (!isCardFiltered(c)) continue;
+      var s = progress[c.id];
+      if (s && s.due > 0 && s.due <= now) due.push(c);
+    }
+    due.sort(function(a,b){ return (progress[a.id].due||0) - (progress[b.id].due||0); });
+    return due;
+  }
+  function newCards(){
+    var arr = [];
+    for (var i=0;i<CARDS.length;i++){
+      var c = CARDS[i];
+      if (!isCardFiltered(c)) continue;
+      if (!progress[c.id]) arr.push(c);
+    }
+    var seed = todayStr();
+    arr.sort(function(a,b){ return hashSort(a.id + seed) - hashSort(b.id + seed); });
+    return arr;
+  }
+  function hashSort(s){
+    var h = 0;
+    for (var i=0;i<s.length;i++){ h = ((h<<5)-h) + s.charCodeAt(i); h |= 0; }
+    return h;
+  }
+  function newToday(){ var t = todayStr(); return (history[t] && history[t]["new"]) || 0; }
+  function newRemaining(){ return Math.max(0, settings.newPerDay - newToday()); }
+  function buildSessionQueue(extra){
+    if (extra){
+      var avail = CARDS.filter(isCardFiltered);
+      shuffle(avail);
+      return avail.slice(0, 30);
+    }
+    var queue = dueCards().slice(0, settings.maxReviews);
+    var newAvail = newCards().slice(0, newRemaining());
+    return queue.concat(newAvail);
+  }
+  function shuffle(arr){
+    for (var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random() * (i+1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+  }
+  function totalSeen(){ return Object.keys(progress).length; }
+  function dayStreak(){
+    var count = 0;
+    var d = new Date();
+    for (var i=0;i<365;i++){
+      var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if (history[key] && history[key].reviewed > 0){
+        count++;
+        d.setDate(d.getDate()-1);
+      } else { break; }
+    }
+    if (count === 0){
+      var today = todayStr();
+      if (!history[today]) return 0;
+    }
+    return count;
+  }
+
+  // ========== VIEWS ==========
+  function showView(name){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    var el = document.getElementById('view-' + name);
+    if (el) el.classList.add('active');
+    document.querySelectorAll('.nav-btn[data-view]').forEach(function(b){
+      b.classList.toggle('active', b.dataset.view === name);
+    });
+    if (name === 'dashboard') renderDashboard();
+    if (name === 'settings')  renderSettings();
+    if (name === 'report')    renderReport();
+    iframeHeight();
+  }
+
+  // ========== DASHBOARD ==========
+  function renderDashboard(){
+    document.getElementById('stat-due').textContent = dueCards().length;
+    document.getElementById('stat-new').textContent = Math.min(newRemaining(), newCards().length);
+    document.getElementById('stat-seen').textContent = totalSeen();
+    document.getElementById('stat-deck-total').textContent = CARDS.length;
+    document.getElementById('stat-streak').textContent = dayStreak();
+    document.getElementById('student-name').value = studentName;
+    document.getElementById('session-id').textContent = sessionId;
+
+    var grid = document.getElementById('sys-grid');
+    grid.innerHTML = '';
+    Object.keys(SYSTEM_NAMES).forEach(function(sysKey){
+      var name = SYSTEM_NAMES[sysKey];
+      var total = 0, seen = 0, due = 0;
+      for (var i=0;i<CARDS.length;i++){
+        if (CARDS[i].sys !== sysKey) continue;
+        total++;
+        var s = progress[CARDS[i].id];
+        if (s){
+          seen++;
+          if (s.due > 0 && s.due <= nowMs()) due++;
+        }
+      }
+      var pct = total > 0 ? Math.round((seen / total) * 100) : 0;
+      var meta = SYSTEM_META[sysKey] || {};
+      var weight = meta.weight ? ' \u00b7 ' + meta.weight : '';
+      var card = document.createElement('div');
+      card.className = 'sys-card';
+      card.innerHTML =
+        '<div class="sys-name">' + escapeHtml(name) + '</div>' +
+        '<div class="sys-meta">' + seen + ' / ' + total + ' seen' + (due ? ' \u00b7 ' + due + ' due' : '') + weight + '</div>' +
+        '<div class="sys-bar"><div class="sys-bar-fill ' + (due ? 'has-due' : '') + '" style="width:' + pct + '%"></div></div>';
+      grid.appendChild(card);
+    });
+  }
+
+  // ========== STUDY VIEW ==========
+  var session = null;
+
+  function startSession(extra){
+    var queue = buildSessionQueue(extra);
+    if (queue.length === 0){
+      alert('No cards to review right now. Nice work staying on top of it.');
+      return;
+    }
+    session = { queue: queue, index: 0, revealed: false };
+    showView('study');
+    renderCard();
+  }
+  function endSession(){
+    session = null;
+    showView('dashboard');
+  }
+
+  function renderCard(){
+    if (!session) return;
+    if (session.index >= session.queue.length){
+      var stage = document.getElementById('card-stage');
+      stage.innerHTML =
+        '<div class="card-front-headline">Session complete</div>' +
+        '<p>You reviewed ' + session.queue.length + ' card' + (session.queue.length===1?'':'s') + '. Check back tomorrow or run an extra practice session.</p>' +
+        '<button class="btn-primary" onclick="document.querySelector(\'.nav-btn[data-view=dashboard]\').click()" type="button">Back to dashboard</button>';
+      document.getElementById('study-count').textContent = session.queue.length + ' of ' + session.queue.length;
+      document.getElementById('study-progress-fill').style.width = '100%';
+      session = null;
+      return;
+    }
+    var card = session.queue[session.index];
+    session.revealed = false;
+    document.getElementById('study-count').textContent = (session.index+1) + ' of ' + session.queue.length;
+    document.getElementById('study-progress-fill').style.width = ((session.index/session.queue.length)*100) + '%';
+
+    var stage = document.getElementById('card-stage');
+    stage.innerHTML = ''; // rebuild
+    var pillsEl = document.createElement('div');
+    pillsEl.className = 'card-pills';
+    var sysName = SYSTEM_NAMES[card.sys] || card.sys;
+    var typeLabel = card.type === 'pathog' ? 'Pattern recognition' : card.type === 'mnem' ? 'Mnemonic' : 'Comparison';
+    var typePillClass = card.type === 'pathog' ? 'terra' : card.type === 'mnem' ? 'gold' : 'teal';
+    var stateLabel = '';
+    var s = progress[card.id];
+    if (!s) stateLabel = '<span class="pill terra">New</span>';
+    else if (s.reps <= 1) stateLabel = '<span class="pill terra">Learning</span>';
+    else stateLabel = '<span class="pill">Review</span>';
+    pillsEl.innerHTML =
+      '<span class="pill">' + escapeHtml(sysName) + '</span>' +
+      '<span class="pill ' + typePillClass + '">' + typeLabel + '</span>' +
+      '<span class="pill" style="opacity:.7;">' + escapeHtml(card.cat) + '</span>' +
+      stateLabel;
+    stage.appendChild(pillsEl);
+
+    var headline = document.createElement('div');
+    headline.className = 'card-front-headline';
+    headline.textContent = card.front;
+    stage.appendChild(headline);
+
+    // Recall prompt
+    var promptWrap = document.createElement('div');
+    promptWrap.innerHTML = buildRecallPrompt(card);
+    stage.appendChild(promptWrap);
+
+    // Back content (hidden initially)
+    var backWrap = document.createElement('div');
+    backWrap.className = 'card-back';
+    backWrap.style.display = 'none';
+    backWrap.innerHTML = buildBackContent(card);
+    stage.appendChild(backWrap);
+
+    // Reveal button
+    var revealBtn = document.createElement('button');
+    revealBtn.className = 'reveal-btn';
+    revealBtn.id = 'btn-reveal';
+    revealBtn.type = 'button';
+    revealBtn.textContent = 'Show answer';
+    revealBtn.addEventListener('click', revealAnswer);
+    stage.appendChild(revealBtn);
+
+    // Rate grid (hidden initially)
+    var rateGrid = document.createElement('div');
+    rateGrid.className = 'rate-grid';
+    rateGrid.style.display = 'none';
+    rateGrid.id = 'rate-grid';
+    ['again','hard','good','easy'].forEach(function(q){
+      var b = document.createElement('button');
+      b.className = 'rate-btn ' + q;
+      b.type = 'button';
+      b.dataset.rate = q;
+      b.innerHTML =
+        '<span class="rate-name">' + (q.charAt(0).toUpperCase() + q.slice(1)) + '</span>' +
+        '<span class="rate-interval">' + predictInterval(card, q) + '</span>';
+      b.addEventListener('click', function(){ rateAndAdvance(q); });
+      rateGrid.appendChild(b);
+    });
+    stage.appendChild(rateGrid);
+
+    // Keyboard hints
+    var hints = document.createElement('div');
+    hints.className = 'kbd-hints';
+    hints.innerHTML =
+      '<span><kbd>Space</kbd>reveal</span>' +
+      '<span><kbd>1</kbd>again</span>' +
+      '<span><kbd>2</kbd>hard</span>' +
+      '<span><kbd>3</kbd>good</span>' +
+      '<span><kbd>4</kbd>easy</span>' +
+      '<span><kbd>Esc</kbd>end session</span>';
+    stage.appendChild(hints);
+
+    iframeHeight();
+  }
+
+  function buildRecallPrompt(card){
+    if (card.type === 'pathog'){
+      return '<div class="recall-prompt"><div class="recall-label">You need to recall</div><div class="recall-line">The diagnosis or condition this finding points to.</div></div>';
+    }
+    if (card.type === 'mnem'){
+      return '<div class="recall-prompt"><div class="recall-label">You need to recall</div><div class="recall-line">What each letter stands for, and the clinical situation it applies to.</div></div>';
+    }
+    // row: list the back labels
+    var items = (card.back || []).map(function(pair){
+      return '<li>' + escapeHtml(pair[0]) + '</li>';
+    }).join('');
+    return '<div class="recall-prompt"><div class="recall-label">You need to recall</div><ul class="recall-list">' + items + '</ul></div>';
+  }
+
+  function buildBackContent(card){
+    return (card.back || []).map(function(pair){
+      return '<div class="back-row"><div class="back-label">' + escapeHtml(pair[0]) + '</div><div class="back-value">' + escapeHtml(pair[1]) + '</div></div>';
+    }).join('');
+  }
+
+  function revealAnswer(){
+    if (!session) return;
+    var backWrap = document.querySelector('#card-stage .card-back');
+    var revealBtn = document.getElementById('btn-reveal');
+    var rateGrid = document.getElementById('rate-grid');
+    if (backWrap) backWrap.style.display = 'block';
+    if (revealBtn) revealBtn.style.display = 'none';
+    if (rateGrid) rateGrid.style.display = 'grid';
+    session.revealed = true;
+    iframeHeight();
+  }
+  function rateAndAdvance(q){
+    if (!session || !session.revealed) return;
+    var card = session.queue[session.index];
+    rate(card, q);
+    session.index++;
+    renderCard();
+  }
+
+  // Keyboard handler
+  document.addEventListener('keydown', function(e){
+    if (!session) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'Escape'){ endSession(); return; }
+    if (e.key === ' '){ if (!session.revealed){ e.preventDefault(); revealAnswer(); } return; }
+    if (session.revealed){
+      if (e.key === '1') rateAndAdvance('again');
+      else if (e.key === '2') rateAndAdvance('hard');
+      else if (e.key === '3') rateAndAdvance('good');
+      else if (e.key === '4') rateAndAdvance('easy');
+    }
+  });
+
+  // ========== REPORT VIEW ==========
+  function getReportRangeDays(){
+    var v = document.getElementById('report-range').value;
+    if (v === 'all') return 99999;
+    return parseInt(v, 10) || 30;
+  }
+  function buildDailyActivity(rangeDays){
+    var rows = [];
+    var d = new Date();
+    var keys = Object.keys(history);
+    if (rangeDays >= 99999){
+      // All time: use sorted keys
+      keys.sort();
+      keys.forEach(function(k){
+        var h = history[k];
+        if (h && h.reviewed > 0) rows.push({ date: k, h: h });
+      });
+      return rows;
+    }
+    // Range: iterate back from today
+    var collected = [];
+    for (var i=0;i<rangeDays;i++){
+      var key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if (history[key] && history[key].reviewed > 0) collected.push({ date: key, h: history[key] });
+      d.setDate(d.getDate()-1);
+    }
+    // Reverse so oldest first
+    return collected.reverse();
+  }
+
+  function renderReport(){
+    var name = (studentName || '').trim();
+    document.getElementById('report-student').textContent = name || '(name not entered)';
+    document.getElementById('report-session').textContent = sessionId;
+    document.getElementById('report-generated').textContent = new Date().toLocaleString();
+
+    var rangeDays = getReportRangeDays();
+    var label = document.getElementById('report-range').options[document.getElementById('report-range').selectedIndex].text;
+    document.getElementById('report-range-label').textContent = label;
+
+    var rows = buildDailyActivity(rangeDays);
+    var tbody = document.getElementById('report-tbody');
+    tbody.innerHTML = '';
+
+    if (rows.length === 0){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="9" class="report-empty">No review activity in this date range yet.</td>';
+      tbody.appendChild(tr);
+    } else {
+      rows.forEach(function(r){
+        var h = r.h;
+        var correct = (h.good || 0) + (h.easy || 0);
+        var total = h.reviewed || 0;
+        var accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + formatDateDisplay(r.date) + '</td>' +
+          '<td>' + dayOfWeek(r.date) + '</td>' +
+          '<td class="num">' + total + '</td>' +
+          '<td class="num">' + (h["new"] || 0) + '</td>' +
+          '<td class="num">' + (h.again || 0) + '</td>' +
+          '<td class="num">' + (h.hard || 0) + '</td>' +
+          '<td class="num">' + (h.good || 0) + '</td>' +
+          '<td class="num">' + (h.easy || 0) + '</td>' +
+          '<td><span class="accuracy-bar"><span class="accuracy-fill" style="width:' + accuracy + '%"></span></span>' + accuracy + '%</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Summary stats
+    var totalReviewed = 0, totalNew = 0, totalCorrect = 0;
+    rows.forEach(function(r){
+      totalReviewed += (r.h.reviewed || 0);
+      totalNew += (r.h["new"] || 0);
+      totalCorrect += (r.h.good || 0) + (r.h.easy || 0);
+    });
+    var overallAccuracy = totalReviewed > 0 ? Math.round((totalCorrect / totalReviewed) * 100) + '%' : '--';
+    document.getElementById('report-days').textContent = rows.length;
+    document.getElementById('report-total').textContent = totalReviewed;
+    document.getElementById('report-new-total').textContent = totalNew;
+    document.getElementById('report-accuracy').textContent = overallAccuracy;
+    document.getElementById('report-streak').textContent = dayStreak();
+
+    iframeHeight();
+  }
+
+  // ========== SETTINGS ==========
+  function renderSettings(){
+    document.getElementById('set-new-per-day').value = settings.newPerDay;
+    document.getElementById('set-new-per-day-val').textContent = settings.newPerDay;
+    document.getElementById('set-max-reviews').value = settings.maxReviews;
+    document.getElementById('set-max-reviews-val').textContent = settings.maxReviews;
+
+    var sysGrid = document.getElementById('set-systems');
+    sysGrid.innerHTML = '';
+    Object.keys(SYSTEM_NAMES).forEach(function(key){
+      var row = document.createElement('label');
+      row.className = 'checkbox-row';
+      var checked = settings.systems.indexOf(key) !== -1;
+      row.innerHTML = '<input type="checkbox" data-sys="' + key + '"' + (checked ? ' checked' : '') + '> ' + escapeHtml(SYSTEM_NAMES[key]);
+      sysGrid.appendChild(row);
+    });
+    sysGrid.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        var key = cb.dataset.sys;
+        if (cb.checked){
+          if (settings.systems.indexOf(key) === -1) settings.systems.push(key);
+        } else {
+          settings.systems = settings.systems.filter(function(k){ return k !== key; });
+        }
+        persist();
+      });
+    });
+
+    document.querySelectorAll('#set-types input[data-type]').forEach(function(cb){
+      cb.checked = settings.types.indexOf(cb.dataset.type) !== -1;
+      cb.addEventListener('change', function(){
+        var t = cb.dataset.type;
+        if (cb.checked){ if (settings.types.indexOf(t) === -1) settings.types.push(t); }
+        else { settings.types = settings.types.filter(function(x){ return x !== t; }); }
+        persist();
+      });
+    });
+  }
+
+  // ========== UTILITIES ==========
+  function escapeHtml(s){
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  function confirmAction(title, body, onYes){
+    var backdrop = document.getElementById('modal-backdrop');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').textContent = body;
+    backdrop.classList.add('open');
+    var confirm = document.getElementById('modal-confirm');
+    var cancel = document.getElementById('modal-cancel');
+    function close(){ backdrop.classList.remove('open'); confirm.removeEventListener('click', yes); cancel.removeEventListener('click', no); }
+    function yes(){ close(); onYes(); }
+    function no(){ close(); }
+    confirm.addEventListener('click', yes);
+    cancel.addEventListener('click', no);
+  }
+
+  // iframe height sender
+  function iframeHeight(){
+    try {
+      var h = document.documentElement.scrollHeight;
+      if (window.parent && window.parent !== window){
+        window.parent.postMessage({ type: 'iframe-height', height: h }, '*');
+      }
+    } catch(e){}
+  }
+  window.addEventListener('load', iframeHeight);
+  window.addEventListener('resize', iframeHeight);
+
+  // ========== BINDINGS ==========
+  document.querySelectorAll('.nav-btn[data-view]').forEach(function(btn){
+    btn.addEventListener('click', function(){ showView(btn.dataset.view); });
+  });
+  document.getElementById('btn-start-session').addEventListener('click', function(){ startSession(false); });
+  document.getElementById('btn-extra-practice').addEventListener('click', function(){ startSession(true); });
+  document.getElementById('btn-end-session').addEventListener('click', endSession);
+
+  document.getElementById('student-name').addEventListener('input', function(e){
+    studentName = e.target.value;
+    saveString(SK.studentName, studentName);
+  });
+
+  document.getElementById('set-new-per-day').addEventListener('input', function(e){
+    settings.newPerDay = parseInt(e.target.value, 10);
+    document.getElementById('set-new-per-day-val').textContent = settings.newPerDay;
+    persist();
+  });
+  document.getElementById('set-max-reviews').addEventListener('input', function(e){
+    settings.maxReviews = parseInt(e.target.value, 10);
+    document.getElementById('set-max-reviews-val').textContent = settings.maxReviews;
+    persist();
+  });
+  document.getElementById('btn-reset').addEventListener('click', function(){
+    confirmAction(
+      'Reset all progress?',
+      'This erases review history, schedules, streak, name, and session ID. Card data is unaffected. There is no undo.',
+      function(){
+        progress = {}; history = {}; studentName = ''; sessionId = generateSessionId();
+        localStorage.removeItem(SK.progress);
+        localStorage.removeItem(SK.history);
+        localStorage.removeItem(SK.studentName);
+        saveString(SK.sessionId, sessionId);
+        renderDashboard();
+        showView('dashboard');
+      }
+    );
+  });
+
+  document.getElementById('report-range').addEventListener('change', renderReport);
+  document.getElementById('btn-print-report').addEventListener('click', function(){
+    showView('report');
+    setTimeout(function(){ window.print(); }, 100);
+  });
+
+  // Initial render
+  renderDashboard();
+
+})();
+</script>
+</body>
+</html>
